@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Network)
+
 
 set(TS_FILES xjzer_zh_CN.ts)
 
@@ -21,6 +23,8 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        doiptester.h
+        doiptester.cpp
         ${TS_FILES}
 )
 
@@ -52,6 +56,7 @@ else()
 endif()
 
 target_link_libraries(xjzer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(xjzer PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 
 set_target_properties(xjzer PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
