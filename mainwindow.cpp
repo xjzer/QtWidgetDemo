@@ -82,3 +82,18 @@ void MainWindow::on_pushButton_clicked()
     ui->textBrowser->append(qDebug().toString(socket->state()));
     ui->textBrowser->append(qDebug().toString(socket->isValid()));
 }
+
+void MainWindow::on_pushButton_2_clicked()
+{
+//    UnconnectedState,
+//    HostLookupState,
+//    ConnectingState,
+//    ConnectedState,
+//    BoundState,
+//    ListeningState,
+//    ClosingState
+    if(this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()){
+        socket->write();
+    }
+}
+
