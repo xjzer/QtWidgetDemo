@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-09 17:43:51
+ * @LastEditTime : 2022-07-09 21:47:50
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -68,7 +68,6 @@ void MainWindow::on_clientButton_clicked() {
     }
 
     ui->clientButton->setEnabled(true);
-
 }
 
 void MainWindow::on_pushButton_clicked() {
@@ -87,10 +86,16 @@ void MainWindow::on_pushButton_send_clicked() {
     //    BoundState,
     //    ListeningState,
     //    ClosingState
+    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
     if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
-        socket->write(m_sendBuffr);
+        socket->write((const char *)buf, sizeof(buf)-1);
         qDebug() << "write success";
     } else {
         qDebug() << "write error";
+    }
+    if (socket->waitForBytesWritten()) {
+        qDebug() << "write success!!!";
     }
 }

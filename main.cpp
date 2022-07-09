@@ -40,9 +40,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QString text;
     QTextStream log(&text);
 
-    const char *file     = context.file ? context.file : "";
-    const char *function = context.function ? context.function : "";
-
     log << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ";
 
     switch (type) {
