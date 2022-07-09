@@ -15,19 +15,24 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
     QString getIp(void);
     quint16 getPort(void);
+
+    friend void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
 
 private slots:
     void on_clientButton_clicked();
     void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
+    void on_pushButton_send_clicked();
 
 private:
     Ui::MainWindow *ui;
     QString m_adddress;
     quint16 m_port;
     QTcpSocket *socket;
+    QByteArray m_sendBuffr;
+    QString m_log;
 };
 #endif // MAINWINDOW_H
