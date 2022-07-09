@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->ServerAddress->setEditText("192.168.11.197");
     ui->ServerPort->setText("13400");
     ui->pushButton_send->setText(tr("发送"));
+    ui->treeWidget_doipConsole->header()->setSectionResizeMode(QHeaderView::Stretch); //treeWidget列宽自适应
+
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -88,14 +90,51 @@ void MainWindow::on_pushButton_send_clicked() {
     //    ClosingState
     quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
     if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
         socket->write((const char *)buf, sizeof(buf)-1);
         qDebug() << "write success";
     } else {
         qDebug() << "write error";
     }
+
+}
+
+
+void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+//    item->setCheckState(0,Qt::Unchecked);
+    auto str = item->text(1).toLocal8Bit().begin();
+    auto payloadTypeValue = std::strtoul(str, &str, 16);
+    qDebug() << "payloadTypeValue = "<<payloadTypeValue;
+    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+
+    //
+    QComboBox *frame=new QComboBox();
+
+    switch (payloadTypeValue) {
+    case RoutingActivationRequest:
+        frame->addItem("Deafult");
+        frame->addItem("Diagnostic communication required by regulation");
+        frame->addItem("Central security");
+        frame->addItem("Available for additional VM-specific use");
+        break;
+    default:
+        qDebug() <<     item->text(1).toStdU16String();
+        break;
+    }
+
+    if(frame->count()){
+        ui->treeWidget_doipConsole->setItemWidget(item->child(0),1,frame);
+    }
+
+    if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
+        socket->write((const char *)buf, sizeof(buf)-1);
+    }
     if (socket->waitForBytesWritten()) {
         qDebug() << "write success!!!";
     }
+
+
 }

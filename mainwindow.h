@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
+#include <QTreeWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -13,6 +14,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    enum PayloadTypeValue
+    {
+        RoutingActivationRequest = 0x0005,
+        RoutingActivationResponse = 0x0006,
+    };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
@@ -26,6 +32,8 @@ private slots:
     void on_clientButton_clicked();
     void on_pushButton_clicked();
     void on_pushButton_send_clicked();
+
+    void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
     Ui::MainWindow *ui;
