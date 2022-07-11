@@ -220,16 +220,6 @@
      </item>
     </widget>
    </widget>
-   <widget class="QComboBox" name="comboBox">
-    <property name="geometry">
-     <rect>
-      <x>430</x>
-      <y>110</y>
-      <width>62</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -240,8 +230,56 @@
      <height>17</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="actiona"/>
+    <addaction name="action"/>
+    <addaction name="action_2"/>
+    <addaction name="action_3"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>运行</string>
+    </property>
+    <addaction name="actionOTA"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>调试</string>
+    </property>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOTA">
+   <property name="text">
+    <string>OTA</string>
+   </property>
+  </action>
+  <action name="actiona">
+   <property name="text">
+    <string>新建</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>导入</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>导出</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>设置</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
