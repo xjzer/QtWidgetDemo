@@ -230,57 +230,74 @@
      <height>17</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>文件</string>
     </property>
-    <addaction name="actiona"/>
-    <addaction name="action"/>
-    <addaction name="action_2"/>
-    <addaction name="action_3"/>
+    <addaction name="action_new"/>
+    <addaction name="action_import"/>
+    <addaction name="action_export"/>
+    <addaction name="action_settings"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
+   <widget class="QMenu" name="menu_run">
     <property name="title">
      <string>运行</string>
     </property>
-    <addaction name="actionOTA"/>
+    <addaction name="action_ota"/>
    </widget>
-   <widget class="QMenu" name="menu_3">
+   <widget class="QMenu" name="menu_debug">
     <property name="title">
      <string>调试</string>
     </property>
    </widget>
-   <addaction name="menu"/>
-   <addaction name="menu_3"/>
-   <addaction name="menu_2"/>
+   <addaction name="menu_file"/>
+   <addaction name="menu_debug"/>
+   <addaction name="menu_run"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionOTA">
+  <action name="action_ota">
    <property name="text">
     <string>OTA</string>
    </property>
   </action>
-  <action name="actiona">
+  <action name="action_new">
    <property name="text">
     <string>新建</string>
    </property>
   </action>
-  <action name="action">
+  <action name="action_import">
    <property name="text">
     <string>导入</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="action_export">
    <property name="text">
     <string>导出</string>
    </property>
   </action>
-  <action name="action_3">
+  <action name="action_settings">
    <property name="text">
     <string>设置</string>
    </property>
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_ui_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -28,6 +28,9 @@ set(PROJECT_SOURCES
         mainwindow.ui
         doiptester.h
         doiptester.cpp
+        settings.h
+        settings.cpp
+        settings.ui
         ${TS_FILES}
 )
 

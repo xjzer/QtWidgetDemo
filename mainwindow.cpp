@@ -9,11 +9,13 @@
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "settings.h"
+#include "ui_settings.h"
 #include <QDebug>
 #include <QMetaEnum>
 #include <QNetworkProxy>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), ui_set(new settings(this)){
     ui->setupUi(this);
     ui->ServerAddress->setEditable(true);
     socket = new QTcpSocket(this);
@@ -21,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->ServerPort->setText("13400");
     ui->pushButton_send->setText(tr("发送"));
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(QHeaderView::Stretch); //treeWidget列宽自适应
-
+    QObject::connect(ui->action_settings,SIGNAL(triggered()),this,SLOT(on_action_settings_trigger()));
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -137,4 +139,9 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
     }
 
 
+}
+
+void MainWindow::on_action_settings_trigger(void)
+{
+    this->ui_set->show();
 }
