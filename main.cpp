@@ -5,15 +5,15 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-09 17:19:19
+ * @LastEditTime : 2022-07-13 00:24:02
  */
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDateTime>
+#include <QDebug>
 #include <QLocale>
 #include <QMessageLogContext>
 #include <QTranslator>
-#include <QDebug>
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
@@ -63,7 +63,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     }
 #if defined(QT_MESSAGELOGCONTEXT)
-    log << msg << " " << file << ":" << context.line << " " << function<< Qt::endl;
+    log << msg << " " << context.file << ":" << context.line << " " << context.function << Qt::endl;
 #elif defined(QT_NO_MESSAGELOGCONTEXT)
     log << msg << Qt::endl;
 #elif

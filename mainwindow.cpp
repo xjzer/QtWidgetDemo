@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-09 21:47:50
+ * @LastEditTime : 2022-07-13 00:24:26
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -15,15 +15,18 @@
 #include <QMetaEnum>
 #include <QNetworkProxy>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), ui_set(new settings(this)){
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), ui_set(new settings(this)) {
     ui->setupUi(this);
     ui->ServerAddress->setEditable(true);
     socket = new QTcpSocket(this);
     ui->ServerAddress->setEditText("192.168.11.197");
     ui->ServerPort->setText("13400");
     ui->pushButton_send->setText(tr("发送"));
-    ui->treeWidget_doipConsole->header()->setSectionResizeMode(QHeaderView::Stretch); //treeWidget列宽自适应
-    QObject::connect(ui->action_settings,SIGNAL(triggered()),this,SLOT(on_action_settings_trigger()));
+    ui->treeWidget_doipConsole->header()->setSectionResizeMode(
+        QHeaderView::Stretch); // treeWidget列宽自适应
+    QObject::connect(ui->action_settings, SIGNAL(triggered()), this,
+                     SLOT(slot_action_settings_trigger()));
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -93,27 +96,23 @@ void MainWindow::on_pushButton_send_clicked() {
     quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
-        socket->write((const char *)buf, sizeof(buf)-1);
+        socket->write((const char *)buf, sizeof(buf) - 1);
         qDebug() << "write success";
     } else {
         qDebug() << "write error";
     }
-
 }
 
-
-void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-//    item->setCheckState(0,Qt::Unchecked);
-    auto str = item->text(1).toLocal8Bit().begin();
+void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
+    //    item->setCheckState(0,Qt::Unchecked);
+    auto str              = item->text(1).toLocal8Bit().begin();
     auto payloadTypeValue = std::strtoul(str, &str, 16);
-    qDebug() << "payloadTypeValue = "<<payloadTypeValue;
+    qDebug() << "payloadTypeValue = " << payloadTypeValue;
     quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-
     //
-    QComboBox *frame=new QComboBox();
+    QComboBox *frame = new QComboBox();
 
     switch (payloadTypeValue) {
     case RoutingActivationRequest:
@@ -123,25 +122,22 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         frame->addItem("Available for additional VM-specific use");
         break;
     default:
-        qDebug() <<     item->text(1).toStdU16String();
+        qDebug() << item->text(1).toStdU16String();
         break;
     }
 
-    if(frame->count()){
-        ui->treeWidget_doipConsole->setItemWidget(item->child(0),1,frame);
+    if (frame->count()) {
+        ui->treeWidget_doipConsole->setItemWidget(item->child(0), 1, frame);
     }
 
     if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
-        socket->write((const char *)buf, sizeof(buf)-1);
+        socket->write((const char *)buf, sizeof(buf) - 1);
     }
     if (socket->waitForBytesWritten()) {
         qDebug() << "write success!!!";
     }
-
-
 }
 
-void MainWindow::on_action_settings_trigger(void)
-{
+void MainWindow::slot_action_settings_trigger(void) {
     this->ui_set->show();
 }
