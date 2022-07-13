@@ -12,6 +12,7 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <QAbstractButton>
 namespace Ui {
 class settings;
 }
@@ -23,7 +24,12 @@ class settings : public QDialog {
     explicit settings(QWidget *parent = nullptr);
     ~settings();
 
-  private:
+private slots:
+    void on_pushButton_odx_clicked();
+
+    void on_pushButton_dll_clicked();
+
+private:
     Ui::settings *ui;
     QSettings *m_settings;
 };

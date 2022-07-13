@@ -20,7 +20,7 @@
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -67,6 +67,23 @@
           <string>lower computer</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
+          <item row="4" column="2">
+           <widget class="QLineEdit" name="lineEdit_2"/>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>physical address</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
           <item row="3" column="2">
            <widget class="QLineEdit" name="lineEdit_5">
             <property name="text">
@@ -81,7 +98,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="6" column="2">
            <widget class="QLineEdit" name="lineEdit_3"/>
           </item>
           <item row="2" column="2">
@@ -91,29 +108,12 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Port</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>physical address</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
+          <item row="6" column="1">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>functional addressing</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="lineEdit_2"/>
           </item>
          </layout>
         </widget>
@@ -124,63 +124,91 @@
       <attribute name="title">
        <string>UDS</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>odx-d</string>
-         </property>
-        </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>odx-d</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboBox_odx">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_odx">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Browse</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>sercurity.dll</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="comboBox_dll">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButton_dll">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Browse</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit_8"/>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="0" column="2">
-        <widget class="QDialogButtonBox" name="buttonBox_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Open</set>
-         </property>
-         <property name="centerButtons">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>sercurity.dll</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_9"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QDialogButtonBox" name="buttonBox_3">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="inputMethodHints">
-          <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly|Qt::ImhNoTextHandles</set>
-         </property>
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Open</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
+       <item>
         <widget class="QCheckBox" name="checkBox_2">
          <property name="text">
           <string>Automatic trigger 3E</string>
@@ -189,6 +217,19 @@
           <bool>true</bool>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -291,6 +332,19 @@
        </item>
        <item row="1" column="0">
         <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>

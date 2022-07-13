@@ -11,6 +11,7 @@
 #include "ui_settings.h"
 #include <QDir>
 #include <QSettings>
+#include <QFileDialog>
 
 settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     ui->setupUi(this);
@@ -33,3 +34,27 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
 settings::~settings() {
     delete ui;
 }
+
+void settings::on_pushButton_odx_clicked()
+{
+    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(), QString("Odx (*.odx-d);;ALL files (*)")));
+
+    if (!directory.isEmpty()) {
+        if (ui->comboBox_odx->findText(directory) == -1)
+            ui->comboBox_odx->addItem(directory);
+        ui->comboBox_odx->setCurrentIndex(ui->comboBox_odx->findText(directory));
+        }
+}
+
+
+void settings::on_pushButton_dll_clicked()
+{
+    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(), QString("Odx (*.dll);;ALL files (*)")));
+
+    if (!directory.isEmpty()) {
+        if (ui->comboBox_dll->findText(directory) == -1)
+            ui->comboBox_dll->addItem(directory);
+        ui->comboBox_dll->setCurrentIndex(ui->comboBox_dll->findText(directory));
+    }
+}
+
