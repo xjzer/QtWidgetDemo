@@ -16,7 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt6 REQUIRED COMPONENTS Network)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-add_definitions(-DQT_MESSAGELOGCONTEXT)
+#add_definitions(-DQT_MESSAGELOGCONTEXT)
 
 
 set(TS_FILES xjzer_zh_CN.ts)

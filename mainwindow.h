@@ -39,14 +39,14 @@ class MainWindow : public QMainWindow {
                                 const QString &msg);
 
   private slots:
-    void on_clientButton_clicked();
     void on_pushButton_clicked();
     void on_pushButton_send_clicked();
 
     void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void slot_action_settings_trigger();
+    void on_action_connect_triggered();
 
-  private:
+private:
     Ui::MainWindow *ui;
     settings *ui_set;
     QString m_adddress;

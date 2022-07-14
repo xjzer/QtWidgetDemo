@@ -40,43 +40,6 @@ quint16 MainWindow::getPort() {
     return m_port;
 }
 
-void MainWindow::on_clientButton_clicked() {
-    ui->textBrowser->clear();
-    if (ui->clientButton->text() == tr("连接")) {
-        ui->clientButton->setEnabled(false);
-        qApp->processEvents();
-
-        this->m_adddress = ui->ServerAddress->currentText();
-        this->m_port     = ui->ServerPort->text().toInt();
-        qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
-
-        ui->clientButton->setText(tr("连接中"));
-        ui->clientButton->repaint();
-
-        //建立连接
-        socket->setProxy(QNetworkProxy::NoProxy);
-        socket->connectToHost(this->m_adddress, this->m_port);
-
-        auto rConnect = socket->waitForConnected(1000); // block
-
-        if (rConnect) {
-            qDebug() << socket->socketType() << "connect success, state =" << socket->state();
-            ui->clientButton->setText("断开连接");
-        } else {
-            qDebug() << "Connection failed, error =" << socket->error()
-                     << "state =" << socket->state();
-            ui->clientButton->setText("连接");
-        }
-    } else if (ui->clientButton->text() == tr("断开连接")) {
-        //断开连接
-        socket->disconnectFromHost();
-        //修改按键文字
-        ui->clientButton->setText("连接");
-    }
-
-    ui->clientButton->setEnabled(true);
-}
-
 void MainWindow::on_pushButton_clicked() {
     //    QMetaEnum metaColor = QMetaEnum::fromType<QTcpSocket::SocketState>();
     //    ui->textBrowser->setText(metaColor.valueToKey(socket->state()));
@@ -141,3 +104,41 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
 void MainWindow::slot_action_settings_trigger(void) {
     this->ui_set->show();
 }
+
+void MainWindow::on_action_connect_triggered()
+{
+    ui->textBrowser->clear();
+    if (ui->action_connect->text() == tr("连接")) {
+        ui->action_connect->setEnabled(false);
+        qApp->processEvents();
+
+        this->m_adddress = ui->ServerAddress->currentText();
+        this->m_port     = ui->ServerPort->text().toInt();
+        qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
+
+        ui->action_connect->setText(tr("连接中"));
+
+        //建立连接
+        socket->setProxy(QNetworkProxy::NoProxy);
+        socket->connectToHost(this->m_adddress, this->m_port);
+
+        auto rConnect = socket->waitForConnected(1000); // block
+
+        if (rConnect) {
+            qDebug() << socket->socketType() << "connect success, state =" << socket->state();
+            ui->action_connect->setText("断开连接");
+        } else {
+            qDebug() << "Connection failed, error =" << socket->error()
+                     << "state =" << socket->state();
+            ui->action_connect->setText("连接");
+        }
+    } else if (ui->action_connect->text() == tr("断开连接")) {
+        //断开连接
+        socket->disconnectFromHost();
+        //修改按键文字
+        ui->action_connect->setText("连接");
+    }
+
+    ui->action_connect->setEnabled(true);
+}
+
