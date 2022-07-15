@@ -18,10 +18,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), ui_set(new settings(this)) {
     ui->setupUi(this);
-    ui->ServerAddress->setEditable(true);
     socket = new QTcpSocket(this);
-    ui->ServerAddress->setEditText("192.168.11.197");
-    ui->ServerPort->setText("13400");
     ui->pushButton_send->setText(tr("发送"));
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
         QHeaderView::Stretch); // treeWidget列宽自适应
@@ -111,10 +108,12 @@ void MainWindow::on_action_connect_triggered()
     if (ui->action_connect->text() == tr("连接")) {
         ui->action_connect->setEnabled(false);
         qApp->processEvents();
-
-        this->m_adddress = ui->ServerAddress->currentText();
-        this->m_port     = ui->ServerPort->text().toInt();
+        ui_set->m_settings->beginGroup(ui_set->ui->groupBox_lower->title());
+        this->m_adddress = ui_set->m_settings->value(ui_set->ui->label_ip->text()).toString();
+        this->m_port     = ui_set->m_settings->value(ui_set->ui->label_port->text()).toInt();
+        ui_set->m_settings->endGroup();
         qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
+
 
         ui->action_connect->setText(tr("连接中"));
 

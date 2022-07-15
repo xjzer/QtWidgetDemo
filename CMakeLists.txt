@@ -18,7 +18,6 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 #add_definitions(-DQT_MESSAGELOGCONTEXT)
 
-
 set(TS_FILES xjzer_zh_CN.ts)
 
 set(PROJECT_SOURCES

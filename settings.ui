@@ -15,33 +15,33 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="tab1">
+    <widget class="QTabWidget" name="tab_setting">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="currentIndex">
       <number>2</number>
      </property>
-     <widget class="QWidget" name="tab_1">
+     <widget class="QWidget" name="tab_address">
       <attribute name="title">
        <string>Address</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="groupBox_3">
+        <widget class="QGroupBox" name="groupBox_Upper">
          <property name="title">
           <string>Upper computer</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_tester">
             <property name="text">
              <string>Tester Address:</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit">
+           <widget class="QLineEdit" name="lineEdit_tester">
             <property name="text">
              <string extracomment="hex">0E80</string>
             </property>
@@ -57,7 +57,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="groupBox_lower">
          <property name="font">
           <font>
            <bold>false</bold>
@@ -68,48 +68,48 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="4" column="2">
-           <widget class="QLineEdit" name="lineEdit_2"/>
+           <widget class="QLineEdit" name="lineEdit_physical"/>
           </item>
           <item row="4" column="1">
-           <widget class="QLabel" name="label_3">
+           <widget class="QLabel" name="label_physical">
             <property name="text">
              <string>physical address</string>
             </property>
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLabel" name="label_6">
+           <widget class="QLabel" name="label_port">
             <property name="text">
              <string>Port</string>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QLineEdit" name="lineEdit_5">
+           <widget class="QLineEdit" name="lineEdit_port">
             <property name="text">
              <string>13400</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="label_ip">
             <property name="text">
              <string>IP</string>
             </property>
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QLineEdit" name="lineEdit_3"/>
+           <widget class="QLineEdit" name="lineEdit_functional"/>
           </item>
           <item row="2" column="2">
-           <widget class="QLineEdit" name="lineEdit_4">
+           <widget class="QLineEdit" name="lineEdit_ip">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
           <item row="6" column="1">
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_functional">
             <property name="text">
              <string>functional addressing</string>
             </property>
@@ -120,7 +120,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="tab_uds">
       <attribute name="title">
        <string>UDS</string>
       </attribute>
@@ -233,7 +233,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab_payload_item">
       <attribute name="title">
        <string>Payload Item</string>
       </attribute>
@@ -358,7 +358,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="tab_reserved">
       <attribute name="title">
        <string>Reserved</string>
       </attribute>
@@ -380,7 +380,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
      </property>
      <property name="centerButtons">
       <bool>true</bool>
@@ -398,8 +398,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>294</y>
+     <x>286</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -414,8 +414,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>300</y>
+     <x>286</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

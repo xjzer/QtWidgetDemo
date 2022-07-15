@@ -54,5 +54,6 @@ private:
     QTcpSocket *socket;
     QByteArray m_sendBuffr;
     QString m_log;
+    QSettings *m_settings;
 };
 #endif // MAINWINDOW_H
