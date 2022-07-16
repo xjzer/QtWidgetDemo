@@ -44,6 +44,10 @@ class settings : public QDialog {
 
   private:
     void default_setting(void);
+    void restore_default_tab_address(void);
+    void restore_default_tab_uds(void);
+    void restore_default_tab_payload_item(void);
+
 
     void settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line);
     void settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox);

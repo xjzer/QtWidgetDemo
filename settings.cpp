@@ -20,7 +20,6 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     QCoreApplication::setApplicationName("AutoDoIP");
 
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, "./");
-
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
     m_settings = new QSettings();
@@ -29,6 +28,10 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     qDebug() << "filename = " << m_settings->fileName();
     qDebug() << "format = " << m_settings->format();
     qDebug() << "scope = " << m_settings->scope();
+
+    handle_setting_tab_address(LOAD);
+    handle_setting_tab_uds(LOAD);
+    handle_setting_tab_payload_item(LOAD);
 }
 
 settings::~settings() {
@@ -56,23 +59,26 @@ void settings::on_pushButton_dll_clicked() {
         ui->comboBox_dll->setCurrentIndex(ui->comboBox_dll->findText(directory));
     }
 }
+void settings::restore_default_tab_address()
+{
+    ui->lineEdit_tester->setText("0x0E80");
+    ui->lineEdit_ip->setText("0.0.0.0");
+    ui->lineEdit_port->setText("13400");
+    ui->lineEdit_physical->setText("0x0000");
+    ui->lineEdit_functional->setText("0x0000");
+}
 
-void settings::default_setting() {
-    m_settings->beginGroup(ui->groupBox_Upper->title());
-    m_settings->setValue(ui->label_tester->text().toUtf8(), 0E80);
-    m_settings->endGroup();
+void settings::restore_default_tab_uds()
+{
+    ui->checkBox_uds_3e->setChecked(true);
+}
 
-    m_settings->beginGroup(ui->groupBox_lower->title());
-    m_settings->setValue(ui->label_ip->text(), "");
-    m_settings->setValue(ui->label_port->text(), 13400);
-    m_settings->setValue(ui->label_physical->text(), "");
-    m_settings->setValue(ui->label_functional->text(), "");
-    m_settings->endGroup();
-
-    auto keys = m_settings->allKeys();
-    for (int i = 0; i < keys.size(); ++i) {
-        qDebug() << keys.at(i).toLocal8Bit().constData();
-    }
+void settings::restore_default_tab_payload_item()
+{
+    ui->comboBox_version->setCurrentIndex(1);
+    ui->comboBox_activation_type->setCurrentIndex(0);
+    ui->lineEdit_reserved_iso->setText("00 00 00 00");
+    ui->lineEdit_reserved_oem->setText("00 00 00 00");
 }
 
 void settings::settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line) {
@@ -151,8 +157,9 @@ void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
 void settings::on_buttonBox_clicked(QAbstractButton *button) {
 
     const int currentIndex = ui->tab_setting->currentIndex();
+    m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->currentIndex()));
     if (button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::Save))) {
-        m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->currentIndex()));
+
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
             handle_setting_tab_address(SAVE);
         }
@@ -164,8 +171,21 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
         }
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
         }
-        m_settings->endGroup();
     }
+    else if(button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))){
+        if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
+            restore_default_tab_address();
+        }
+        if (currentIndex == ui->tab_setting->indexOf(ui->tab_uds)) {
+            restore_default_tab_uds();
+        }
+        if (currentIndex == ui->tab_setting->indexOf(ui->tab_payload_item)) {
+            restore_default_tab_payload_item();
+        }
+        if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
+        }
+    }
+    m_settings->endGroup();
 }
 
 void settings::on_tab_setting_currentChanged(int index) {
