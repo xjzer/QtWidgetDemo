@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-13 00:24:26
+ * @LastEditTime : 2022-07-16 13:43:39
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -100,10 +100,10 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
 
 void MainWindow::slot_action_settings_trigger(void) {
     this->ui_set->show();
+    this->ui_set->on_tab_setting_currentChanged(this->ui_set->ui->tab_setting->currentIndex());
 }
 
-void MainWindow::on_action_connect_triggered()
-{
+void MainWindow::on_action_connect_triggered() {
     ui->textBrowser->clear();
     if (ui->action_connect->text() == tr("连接")) {
         ui->action_connect->setEnabled(false);
@@ -113,7 +113,6 @@ void MainWindow::on_action_connect_triggered()
         this->m_port     = ui_set->m_settings->value(ui_set->ui->label_port->text()).toInt();
         ui_set->m_settings->endGroup();
         qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
-
 
         ui->action_connect->setText(tr("连接中"));
 
@@ -140,4 +139,3 @@ void MainWindow::on_action_connect_triggered()
 
     ui->action_connect->setEnabled(true);
 }
-

@@ -5,15 +5,18 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-13 00:24:43
+ * @LastEditTime : 2022-07-16 13:43:46
  */
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QDialog>
-#include <QSettings>
 #include <QAbstractButton>
-
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSettings>
 namespace Ui {
 class settings;
 }
@@ -22,12 +25,15 @@ class settings : public QDialog {
     Q_OBJECT
 
   public:
+    enum SettingsHandle {
+        LOAD = 0, /*load_setting_to_line_via_label*/
+        SAVE,     /*save_setting_to_ini_via_label_and_line*/
+    };
     explicit settings(QWidget *parent = nullptr);
-    QVariant get_value(QAnyStringView key);
     friend class MainWindow;
     ~settings();
 
-private slots:
+  private slots:
     void on_pushButton_odx_clicked();
 
     void on_pushButton_dll_clicked();
@@ -36,8 +42,17 @@ private slots:
 
     void on_tab_setting_currentChanged(int index);
 
-private:
+  private:
     void default_setting(void);
+
+    void settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line);
+    void settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox);
+    void settings_handle(SettingsHandle handle, QCheckBox *checkBox, QLineEdit *line);
+
+    void handle_setting_tab_address(SettingsHandle handle);
+    void handle_setting_tab_uds(SettingsHandle handle);
+    void handle_setting_tab_payload_item(SettingsHandle handle);
+
     Ui::settings *ui;
     QSettings *m_settings;
 };

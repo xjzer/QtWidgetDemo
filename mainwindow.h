@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-13 00:24:36
+ * @LastEditTime : 2022-07-16 13:43:41
  */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -46,7 +46,7 @@ class MainWindow : public QMainWindow {
     void slot_action_settings_trigger();
     void on_action_connect_triggered();
 
-private:
+  private:
     Ui::MainWindow *ui;
     settings *ui_set;
     QString m_adddress;

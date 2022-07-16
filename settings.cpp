@@ -5,7 +5,7 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-15 01:11:11
+ * @LastEditTime : 2022-07-16 13:43:26
  */
 #include "settings.h"
 #include "ui_settings.h"
@@ -29,12 +29,6 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     qDebug() << "filename = " << m_settings->fileName();
     qDebug() << "format = " << m_settings->format();
     qDebug() << "scope = " << m_settings->scope();
-    default_setting();
-}
-
-QVariant settings::get_value(QAnyStringView key)
-{
-    return m_settings->value(key);
 }
 
 settings::~settings() {
@@ -81,33 +75,111 @@ void settings::default_setting() {
     }
 }
 
+void settings::settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line) {
+    switch (handle) {
+    case LOAD:
+        line->setText(m_settings->value(label->text()).toString());
+        break;
+    case SAVE:
+        m_settings->setValue(label->text(), line->text());
+        break;
+    default:
+        break;
+    }
+}
+
+void settings::settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox) {
+    switch (handle) {
+    case LOAD:
+        if (comboBox->isEditable()) {
+            comboBox->setCurrentText(m_settings->value(label->text()).toString());
+        } else {
+            comboBox->setCurrentIndex(m_settings->value(label->text()).toInt());
+        }
+        break;
+    case SAVE:
+        if (comboBox->isEditable()) {
+            m_settings->setValue(label->text(), comboBox->currentText());
+        } else {
+            m_settings->setValue(label->text(), comboBox->currentIndex());
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void settings::settings_handle(SettingsHandle handle, QCheckBox *checkBox,
+                               QLineEdit *line = nullptr) {
+    switch (handle) {
+    case LOAD:
+        checkBox->setChecked(m_settings->value(checkBox->text()).toBool());
+        if (line)
+            line->setText(m_settings->value(checkBox->text() + "_value").toString());
+        break;
+    case SAVE:
+        m_settings->setValue(checkBox->text(), checkBox->isChecked());
+        if (line)
+            m_settings->setValue(checkBox->text() + "_value", line->text());
+        break;
+    default:
+        break;
+    }
+}
+
+void settings::handle_setting_tab_address(SettingsHandle handle) {
+    settings_handle(handle, ui->label_tester, ui->lineEdit_tester);
+    settings_handle(handle, ui->label_ip, ui->lineEdit_ip);
+    settings_handle(handle, ui->label_port, ui->lineEdit_port);
+    settings_handle(handle, ui->label_physical, ui->lineEdit_physical);
+    settings_handle(handle, ui->label_functional, ui->lineEdit_functional);
+}
+
+void settings::handle_setting_tab_uds(SettingsHandle handle) {
+    settings_handle(handle, ui->label_odx, ui->comboBox_odx);
+    settings_handle(handle, ui->label_dll, ui->comboBox_dll);
+    settings_handle(handle, ui->checkBox_uds_3e);
+}
+
+void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
+    settings_handle(handle, ui->label_version, ui->comboBox_version);
+    settings_handle(handle, ui->label_activation_type, ui->comboBox_activation_type);
+    settings_handle(handle, ui->label_reserved_iso, ui->lineEdit_reserved_iso);
+    settings_handle(handle, ui->checkBox_reserved_oem, ui->lineEdit_reserved_oem);
+}
+
 void settings::on_buttonBox_clicked(QAbstractButton *button) {
 
     const int currentIndex = ui->tab_setting->currentIndex();
-
     if (button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::Save))) {
-        qDebug() << ui->tab_setting->currentIndex();
-
+        m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->currentIndex()));
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
-            m_settings->beginGroup(ui->groupBox_Upper->title());
-            m_settings->setValue(ui->label_tester->text().toUtf8(), ui->lineEdit_tester->text());
-            m_settings->endGroup();
-            m_settings->beginGroup(ui->groupBox_lower->title());
-            m_settings->setValue(ui->label_ip->text(),ui->lineEdit_ip->text());
-            m_settings->setValue(ui->label_port->text(), ui->lineEdit_port->text());
-            m_settings->setValue(ui->label_physical->text(), ui->lineEdit_physical->text());
-            m_settings->setValue(ui->label_functional->text(), ui->lineEdit_functional->text());
-            m_settings->endGroup();
+            handle_setting_tab_address(SAVE);
         }
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_uds)) {
+            handle_setting_tab_uds(SAVE);
         }
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_payload_item)) {
+            handle_setting_tab_payload_item(SAVE);
         }
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
         }
+        m_settings->endGroup();
     }
 }
 
 void settings::on_tab_setting_currentChanged(int index) {
-    qDebug() << index;
+    m_settings->beginGroup(ui->tab_setting->tabText(index));
+    if (index == ui->tab_setting->indexOf(ui->tab_address)) {
+        handle_setting_tab_address(LOAD);
+    }
+    if (index == ui->tab_setting->indexOf(ui->tab_uds)) {
+        handle_setting_tab_uds(LOAD);
+    }
+    if (index == ui->tab_setting->indexOf(ui->tab_payload_item)) {
+        handle_setting_tab_payload_item(LOAD);
+    }
+    if (index == ui->tab_setting->indexOf(ui->tab_address)) {
+    }
+    m_settings->endGroup();
 }
