@@ -5,25 +5,30 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-16 13:43:39
+ * @LastEditTime : 2022-07-17 00:40:25
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "settings.h"
 #include "ui_settings.h"
+#include <QDataStream>
 #include <QDebug>
+#include <QFlags>
+#include <QLibraryInfo>
 #include <QMetaEnum>
 #include <QNetworkProxy>
-
+#include <QRegularExpression>
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), ui_set(new settings(this)) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), window_set(new settings(this)) {
     ui->setupUi(this);
-    socket = new QTcpSocket(this);
+    m_tcpSocket = new QTcpSocket(this);
     ui->pushButton_send->setText(tr("发送"));
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
         QHeaderView::Stretch); // treeWidget列宽自适应
     QObject::connect(ui->action_settings, SIGNAL(triggered()), this,
                      SLOT(slot_action_settings_trigger()));
+    ui_set = window_set->ui;
+    m_QRegExp.setPattern("\\s");
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -40,12 +45,11 @@ quint16 MainWindow::getPort() {
 void MainWindow::on_pushButton_clicked() {
     //    QMetaEnum metaColor = QMetaEnum::fromType<QTcpSocket::SocketState>();
     //    ui->textBrowser->setText(metaColor.valueToKey(socket->state()));
-    ui->textBrowser->append(qDebug().toString(socket->state()));
-    ui->textBrowser->append(qDebug().toString(socket->isValid()));
+    ui->textBrowser->append(qDebug().toString(m_tcpSocket->state()));
+    ui->textBrowser->append(qDebug().toString(m_tcpSocket->isValid()));
 }
 
 void MainWindow::on_pushButton_send_clicked() {
-    QTextStream log(&m_log);
     //    UnconnectedState,
     //    HostLookupState,
     //    ConnectingState,
@@ -55,8 +59,9 @@ void MainWindow::on_pushButton_send_clicked() {
     //    ClosingState
     quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
-        socket->write((const char *)buf, sizeof(buf) - 1);
+    if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
+        this->m_tcpSocket->isValid()) {
+        m_tcpSocket->write((const char *)buf, sizeof(buf) - 1);
         qDebug() << "write success";
     } else {
         qDebug() << "write error";
@@ -65,74 +70,107 @@ void MainWindow::on_pushButton_send_clicked() {
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
     //    item->setCheckState(0,Qt::Unchecked);
-    auto str              = item->text(1).toLocal8Bit().begin();
-    auto payloadTypeValue = std::strtoul(str, &str, 16);
-    qDebug() << "payloadTypeValue = " << payloadTypeValue;
-    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
-                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    bool ok;
+    QByteArray iSendHeader;
+    QByteArray iSendData;
+    DoIPProtocol iDoip;
 
-    //
-    QComboBox *frame = new QComboBox();
+    QDataStream iHeaderStream(&iSendHeader, QDataStream::Append | QDataStream::ReadWrite);
+    QDataStream iDataStream(&iSendData, QDataStream::Append | QDataStream::ReadWrite);
+    iHeaderStream.setVersion(QDataStream::Qt_6_4);
 
-    switch (payloadTypeValue) {
+    iDoip.mSourceAddress   = ui_set->lineEdit_tester->text().first(4).toUInt(&ok, 16);
+    iDoip.mHeader.mVersion = ui_set->comboBox_version->currentText().first(2).toUInt(&ok, 16);
+    iDoip.mHeader.mInverseVersion = ~iDoip.mHeader.mVersion;
+    iDoip.mHeader.mType           = item->text(0).first(4).toUInt(&ok, 16);
+
+    if (!ok) {
+        qWarning() << "get payloadType failed";
+    }
+
+    // set doip protocol header
+    iHeaderStream << iDoip.mHeader.mVersion;
+    iHeaderStream << iDoip.mHeader.mInverseVersion;
+    iHeaderStream << iDoip.mHeader.mType;
+    // set doip protocol data
+    iDataStream << iDoip.mSourceAddress;
+
+    //    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
+    //                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    switch (iDoip.mHeader.mType) {
     case RoutingActivationRequest:
-        frame->addItem("Deafult");
-        frame->addItem("Diagnostic communication required by regulation");
-        frame->addItem("Central security");
-        frame->addItem("Available for additional VM-specific use");
+        iDoip.mRoutingReq.mType =
+            ui_set->comboBox_activation_type->currentText().first(2).toUInt(&ok, 16);
+        iDoip.mRoutingReq.mISO =
+            ui_set->lineEdit_reserved_iso->text().remove(m_QRegExp).toUInt(&ok, 16);
+        iDoip.mRoutingReq.mOEM =
+            ui_set->lineEdit_reserved_oem->text().remove(m_QRegExp).toUInt(&ok, 16);
+        iDataStream << iDoip.mRoutingReq.mType;
+        iDataStream << iDoip.mRoutingReq.mISO;
+        if (ui_set->checkBox_reserved_oem->isChecked()) {
+            iDataStream << iDoip.mRoutingReq.mOEM;
+        }
         break;
     default:
         qDebug() << item->text(1).toStdU16String();
         break;
     }
 
-    if (frame->count()) {
-        ui->treeWidget_doipConsole->setItemWidget(item->child(0), 1, frame);
-    }
+    iDoip.mHeader.mLength = iSendData.size();
 
-    if (this->socket->state() == QAbstractSocket::ConnectedState && this->socket->isValid()) {
-        socket->write((const char *)buf, sizeof(buf) - 1);
+    iHeaderStream << iDoip.mHeader.mLength;
+
+    //    iSendHeader.resize(8); //DoIP header size = 8
+    //    iSendData.resize(iDoip.mHeader.mLength);
+
+    if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
+        this->m_tcpSocket->isValid()) {
+        m_tcpSocket->write(iSendHeader + iSendData);
     }
-    if (socket->waitForBytesWritten()) {
-        qDebug() << "write success!!!";
+    if (m_tcpSocket->waitForBytesWritten()) {
+        qInfo().noquote() << iSendHeader.toHex(' ') << "|" << iSendData.toHex(' ');
     }
 }
 
 void MainWindow::slot_action_settings_trigger(void) {
-    this->ui_set->show();
-    this->ui_set->on_tab_setting_currentChanged(this->ui_set->ui->tab_setting->currentIndex());
+    this->window_set->show();
+    this->window_set->on_tab_setting_currentChanged(this->ui_set->tab_setting->currentIndex());
 }
 
 void MainWindow::on_action_connect_triggered() {
+
     ui->textBrowser->clear();
     if (ui->action_connect->text() == tr("连接")) {
         ui->action_connect->setEnabled(false);
         qApp->processEvents();
-        ui_set->m_settings->beginGroup(ui_set->ui->groupBox_lower->title());
-        this->m_adddress = ui_set->m_settings->value(ui_set->ui->label_ip->text()).toString();
-        this->m_port     = ui_set->m_settings->value(ui_set->ui->label_port->text()).toInt();
-        ui_set->m_settings->endGroup();
+        auto tabIndex = ui_set->tab_setting->indexOf(ui_set->tab_address);
+        window_set->m_settings->beginGroup(ui_set->tab_setting->tabText(tabIndex));
+        this->m_adddress = ui_set->lineEdit_ip->text();
+        this->m_port     = ui_set->lineEdit_port->text().toInt();
+        window_set->m_settings->endGroup();
         qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
 
         ui->action_connect->setText(tr("连接中"));
 
         //建立连接
-        socket->setProxy(QNetworkProxy::NoProxy);
-        socket->connectToHost(this->m_adddress, this->m_port);
+        m_tcpSocket->setProxy(QNetworkProxy::NoProxy);
+        m_tcpSocket->connectToHost(this->m_adddress, this->m_port);
 
-        auto rConnect = socket->waitForConnected(1000); // block
+        auto rConnect = m_tcpSocket->waitForConnected(1000); // block
 
         if (rConnect) {
-            qDebug() << socket->socketType() << "connect success, state =" << socket->state();
+            qDebug() << m_tcpSocket->socketType()
+                     << "connect success, state =" << m_tcpSocket->state();
             ui->action_connect->setText("断开连接");
         } else {
-            qDebug() << "Connection failed, error =" << socket->error()
-                     << "state =" << socket->state();
+            qDebug() << "Connection failed, error =" << m_tcpSocket->error()
+                     << "state =" << m_tcpSocket->state();
             ui->action_connect->setText("连接");
         }
     } else if (ui->action_connect->text() == tr("断开连接")) {
         //断开连接
-        socket->disconnectFromHost();
+        m_tcpSocket->disconnectFromHost();
         //修改按键文字
         ui->action_connect->setText("连接");
     }

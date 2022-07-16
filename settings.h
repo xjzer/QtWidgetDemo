@@ -5,11 +5,12 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-16 13:43:46
+ * @LastEditTime : 2022-07-17 00:40:36
  */
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "type.h"
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QComboBox>
@@ -17,6 +18,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSettings>
+
 namespace Ui {
 class settings;
 }
@@ -47,7 +49,6 @@ class settings : public QDialog {
     void restore_default_tab_address(void);
     void restore_default_tab_uds(void);
     void restore_default_tab_payload_item(void);
-
 
     void settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line);
     void settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox);

@@ -255,17 +255,17 @@
            <widget class="QComboBox" name="comboBox_activation_type">
             <item>
              <property name="text">
-              <string>[00] Default</string>
+              <string>00 Default</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>[01] Diagnostic communication required by regulation</string>
+              <string>01 Diagnostic communication required by regulation</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>[E0] Central security</string>
+              <string>E0 Central security</string>
              </property>
             </item>
            </widget>
@@ -315,17 +315,17 @@
         <widget class="QComboBox" name="comboBox_version">
          <item>
           <property name="text">
-           <string>01: ISO/DIS 13400-2:2010</string>
+           <string>01 ISO/DIS 13400-2:2010</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>02: ISO 13400-2:2012</string>
+           <string>02 ISO 13400-2:2012</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>03: ISO 13400-2:2019</string>
+           <string>03 ISO 13400-2:2019</string>
           </property>
          </item>
         </widget>

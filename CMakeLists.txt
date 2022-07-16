@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         settings.h
         settings.cpp
         settings.ui
+        type.h
         ${TS_FILES}
 )
 

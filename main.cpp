@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-13 00:24:02
+ * @LastEditTime : 2022-07-17 00:40:43
  */
 #include "mainwindow.h"
 #include <QApplication>
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QString text;
     QTextStream log(&text);
-
+    FILE *fp = stdout;
     log << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ";
 
     switch (type) {
@@ -48,6 +48,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtWarningMsg:
         log << "(Warning):";
+        fp = stderr;
         break;
     case QtCriticalMsg:
         log << "(Critical):";
@@ -70,6 +71,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #error "No macro definition found"
 #endif
 
-    fprintf(stderr, "%s", text.toLocal8Bit().constData());
-    fflush(stderr);
+    fprintf(fp, "%s",
+            text.toLocal8Bit().constData()); // or fprintf(stderr, "%s", qPrintable(text));
+
+    fflush(fp);
 }

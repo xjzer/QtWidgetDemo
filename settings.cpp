@@ -5,7 +5,7 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-16 13:43:26
+ * @LastEditTime : 2022-07-17 00:40:33
  */
 #include "settings.h"
 #include "ui_settings.h"
@@ -32,6 +32,10 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     handle_setting_tab_address(LOAD);
     handle_setting_tab_uds(LOAD);
     handle_setting_tab_payload_item(LOAD);
+
+    for (qint32 i = ui->tab_setting->count() - 1; i >= 0; i--) {
+        on_tab_setting_currentChanged(i); //第一次运行时，自动将ini中的配置加载到setting窗口
+    }
 }
 
 settings::~settings() {
@@ -59,8 +63,7 @@ void settings::on_pushButton_dll_clicked() {
         ui->comboBox_dll->setCurrentIndex(ui->comboBox_dll->findText(directory));
     }
 }
-void settings::restore_default_tab_address()
-{
+void settings::restore_default_tab_address() {
     ui->lineEdit_tester->setText("0x0E80");
     ui->lineEdit_ip->setText("0.0.0.0");
     ui->lineEdit_port->setText("13400");
@@ -68,13 +71,11 @@ void settings::restore_default_tab_address()
     ui->lineEdit_functional->setText("0x0000");
 }
 
-void settings::restore_default_tab_uds()
-{
+void settings::restore_default_tab_uds() {
     ui->checkBox_uds_3e->setChecked(true);
 }
 
-void settings::restore_default_tab_payload_item()
-{
+void settings::restore_default_tab_payload_item() {
     ui->comboBox_version->setCurrentIndex(1);
     ui->comboBox_activation_type->setCurrentIndex(0);
     ui->lineEdit_reserved_iso->setText("00 00 00 00");
@@ -171,8 +172,8 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
         }
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
         }
-    }
-    else if(button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))){
+    } else if (button == static_cast<QAbstractButton *>(
+                             ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))) {
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
             restore_default_tab_address();
         }
