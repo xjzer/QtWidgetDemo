@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //MDI
     ui->mdiArea->setViewMode(QMdiArea::TabbedView);
+    ui->mdiArea->setActiveSubWindow(ui->mdiArea->subWindowList().front());
 }
 MainWindow::~MainWindow() {
     delete ui;
