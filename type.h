@@ -18,16 +18,17 @@ typedef struct {
         quint16 mType;
         quint32 mLength;
     } mHeader;
-    quint16 mSourceAddress;
     union {
         struct {
+            quint16 mSource;
             quint8 mType;
             quint32 mISO;
             quint32 mOEM;
         } mRoutingReq;
         struct {
-
-        } DiagReq;
+            quint16 mSource;
+            quint16 mTarget;
+        } mUdsReq;
     };
 } DoIPProtocol;
 

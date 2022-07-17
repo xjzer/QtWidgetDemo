@@ -30,6 +30,10 @@ MainWindow::MainWindow(QWidget *parent)
         QHeaderView::Stretch); // treeWidget列宽自适应
     QObject::connect(ui->action_settings, SIGNAL(triggered()), this,
                      SLOT(slot_action_settings_trigger()));
+    QObject::connect(this->m_tcpSocket, SIGNAL(readyRead()), this,
+                     SLOT(slot_socket_ready_read()));
+    QObject::connect(this->m_tcpSocket, SIGNAL(bytesWritten(qint64)), this,
+                     SLOT(slot_socket_bytesWritten(qint64)));
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
     MainWindow::ms_log_browser = ui->textBrowser;
@@ -49,8 +53,8 @@ quint16 MainWindow::getPort() {
 void MainWindow::on_pushButton_clicked() {
     //    QMetaEnum metaColor = QMetaEnum::fromType<QTcpSocket::SocketState>();
     //    ui->textBrowser->setText(metaColor.valueToKey(socket->state()));
-    ui->textBrowser->append(qDebug().toString(m_tcpSocket->state()));
-    ui->textBrowser->append(qDebug().toString(m_tcpSocket->isValid()));
+    qDebug() << m_tcpSocket->state();
+    qDebug() << m_tcpSocket->isValid();
 }
 
 void MainWindow::on_pushButton_send_clicked() {
@@ -73,22 +77,30 @@ void MainWindow::on_pushButton_send_clicked() {
 }
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
-    //    item->setCheckState(0,Qt::Unchecked);
-    bool ok;
-    QByteArray iSendHeader;
-    QByteArray iSendData;
-    QByteArray iRecvHeader;
-    QByteArray iRecvData;
-    DoIPProtocol iDoip;
 
-    QDataStream iHeaderStream(&iSendHeader, QDataStream::Append | QDataStream::ReadWrite);
-    QDataStream iDataStream(&iSendData, QDataStream::Append | QDataStream::ReadWrite);
+
+    bool ok;
+
+    DoIPProtocol iDoip;
+    QTreeWidgetItem *iItemParent = item;
+
+    quint16 iSourceAddress = ui_set->lineEdit_tester->text().remove(m_QRegExp).first(4).toUInt(&ok, 16);
+    quint16 iTargetFunc = iDoip.mUdsReq.mTarget = ui_set->lineEdit_functional->text().remove(m_QRegExp).first(4).toUInt(&ok, 16);
+    quint16 iTargetPhy = iDoip.mUdsReq.mTarget = ui_set->lineEdit_physical->text().remove(m_QRegExp).first(4).toUInt(&ok, 16);
+
+    QDataStream iHeaderStream(&m_sendHeader, QDataStream::Append | QDataStream::ReadWrite);
+    QDataStream iDataStream(&m_sendData, QDataStream::Append | QDataStream::ReadWrite);
+
     iHeaderStream.setVersion(QDataStream::Qt_6_4);
 
-    iDoip.mSourceAddress   = ui_set->lineEdit_tester->text().first(4).toUInt(&ok, 16);
+    //获取顶层节点
+    while(iItemParent->parent()){
+        iItemParent = iItemParent->parent();
+    }
+
     iDoip.mHeader.mVersion = ui_set->comboBox_version->currentText().first(2).toUInt(&ok, 16);
     iDoip.mHeader.mInverseVersion = ~iDoip.mHeader.mVersion;
-    iDoip.mHeader.mType           = item->text(0).first(4).toUInt(&ok, 16);
+    iDoip.mHeader.mType           = iItemParent->text(0).first(4).toUInt(&ok, 16);
 
     if (!ok) {
         qWarning() << "get payloadType failed";
@@ -98,51 +110,76 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
     iHeaderStream << iDoip.mHeader.mVersion;
     iHeaderStream << iDoip.mHeader.mInverseVersion;
     iHeaderStream << iDoip.mHeader.mType;
-    // set doip protocol data
-    iDataStream << iDoip.mSourceAddress;
-
-    //    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
-    //                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     switch (iDoip.mHeader.mType) {
-    case RoutingActivationRequest:
+    case ROUTING_ACTIVATION_REQ:
+        iDoip.mRoutingReq.mSource   = iSourceAddress;
         iDoip.mRoutingReq.mType =
             ui_set->comboBox_activation_type->currentText().first(2).toUInt(&ok, 16);
         iDoip.mRoutingReq.mISO =
             ui_set->lineEdit_reserved_iso->text().remove(m_QRegExp).toUInt(&ok, 16);
         iDoip.mRoutingReq.mOEM =
             ui_set->lineEdit_reserved_oem->text().remove(m_QRegExp).toUInt(&ok, 16);
+        iDataStream << iDoip.mRoutingReq.mSource;
         iDataStream << iDoip.mRoutingReq.mType;
         iDataStream << iDoip.mRoutingReq.mISO;
         if (ui_set->checkBox_reserved_oem->isChecked()) {
             iDataStream << iDoip.mRoutingReq.mOEM;
         }
         break;
+    case UDS_REQ:
+        iDoip.mUdsReq.mSource = iSourceAddress;
+        iDoip.mUdsReq.mTarget = iTargetPhy;
+        iDataStream << iDoip.mUdsReq.mSource;
+        iDataStream << iDoip.mUdsReq.mTarget;
+        m_sendData = m_sendData + QByteArray::fromHex(item->text(0).toLocal8Bit());
+        break;
     default:
         qDebug() << item->text(1).toStdU16String();
         break;
     }
 
-    iDoip.mHeader.mLength = iSendData.size();
-
+    // set payload length
+    iDoip.mHeader.mLength = m_sendData.size();
     iHeaderStream << iDoip.mHeader.mLength;
-
-    //    iSendHeader.resize(8); //DoIP header size = 8
-    //    iSendData.resize(iDoip.mHeader.mLength);
 
     if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
         this->m_tcpSocket->isValid()) {
-        m_tcpSocket->write(iSendHeader + iSendData);
+        m_tcpSocket->write(m_sendHeader + m_sendData);
     }
-    if (m_tcpSocket->waitForBytesWritten()) {
-        qInfo().noquote() << "REQ" <<iSendHeader.toHex(' ').toUpper() << "|" << iSendData.toHex(' ').toUpper();
+
+    //设置不接受鼠标事件(todo bug)
+    ui->treeWidget_doipConsole->setDisabled(true);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    qApp->processEvents();
+
+    if (!m_tcpSocket->waitForBytesWritten(3000)) {
+
     }
-    if (m_tcpSocket->waitForReadyRead()) {
-        iRecvHeader      = m_tcpSocket->read(8);
-        auto iDataLength = iRecvHeader.toHex().last(8).toUInt(&ok, 16);
-        iRecvData        = m_tcpSocket->read(iDataLength);
-        qInfo().noquote() << "RES" << iRecvHeader.toHex(' ').toUpper() << "|" << iRecvData.toHex(' ').toUpper();
-    }
+    m_sendHeader.clear();
+    m_sendData.clear();
+}
+
+void MainWindow::slot_socket_bytesWritten(qint64 bytes)
+{
+     qInfo().noquote() << "REQ" <<m_sendHeader.toHex(' ').toUpper() << "|" << m_sendData.toHex(' ').toUpper();
+     if (!m_tcpSocket->waitForReadyRead(3000)) {
+         qDebug() <<"timeout_ready_read";
+     }
+
+     ui->treeWidget_doipConsole->setEnabled(true);
+     QApplication::restoreOverrideCursor();
+}
+
+void MainWindow::slot_socket_ready_read()
+{
+    bool ok;
+    m_recvHeader      = m_tcpSocket->read(8);
+    auto iDataLength = m_recvHeader.toHex().last(8).toUInt(&ok, 16);
+    m_recvData        = m_tcpSocket->read(iDataLength);
+    qInfo().noquote() << "RES" << m_recvHeader.toHex(' ').toUpper() << "|" << m_recvData.toHex(' ').toUpper();
+    m_recvHeader.clear();
+    m_recvData.clear();
 }
 
 void MainWindow::slot_action_settings_trigger(void) {
@@ -150,11 +187,14 @@ void MainWindow::slot_action_settings_trigger(void) {
     this->window_set->on_tab_setting_currentChanged(this->ui_set->tab_setting->currentIndex());
 }
 
+
+
 void MainWindow::on_action_connect_triggered() {
 
     ui->textBrowser->clear();
     if (ui->action_connect->text() == tr("连接")) {
         ui->action_connect->setEnabled(false);
+
         qApp->processEvents();
         auto tabIndex = ui_set->tab_setting->indexOf(ui_set->tab_address);
         window_set->m_settings->beginGroup(ui_set->tab_setting->tabText(tabIndex));
@@ -175,6 +215,7 @@ void MainWindow::on_action_connect_triggered() {
             qDebug() << m_tcpSocket->socketType()
                      << "connect success, state =" << m_tcpSocket->state();
             ui->action_connect->setText("断开连接");
+            ui->treeWidget_doipConsole->setEnabled(true);
         } else {
             qDebug() << "Connection failed, error =" << m_tcpSocket->error()
                      << "state =" << m_tcpSocket->state();

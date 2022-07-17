@@ -30,6 +30,26 @@
          </property>
          <item>
           <property name="text">
+           <string>10</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>10 01</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10 02</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10 03</string>
+           </property>
+          </item>
+         </item>
+         <item>
+          <property name="text">
            <string>19</string>
           </property>
          </item>
@@ -116,6 +136,9 @@
           <family>Cascadia Mono SemiLight</family>
           <kerning>true</kerning>
          </font>
+        </property>
+        <property name="lineWrapMode">
+         <enum>QTextEdit::NoWrap</enum>
         </property>
        </widget>
       </item>

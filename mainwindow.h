@@ -28,8 +28,9 @@ class MainWindow : public QMainWindow {
 
   public:
     enum PayloadTypeValue : quint16 {
-        RoutingActivationRequest  = 0x0005,
-        RoutingActivationResponse = 0x0006,
+        ROUTING_ACTIVATION_REQ  = 0x0005,
+        ROUTING_ACTIVATION_RESP = 0x0006,
+        UDS_REQ = 0X8001,
     };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -45,10 +46,15 @@ class MainWindow : public QMainWindow {
     void on_pushButton_send_clicked();
 
     void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void slot_socket_bytesWritten(qint64 bytes);
+    void slot_socket_ready_read();
     void slot_action_settings_trigger();
+
     void on_action_connect_triggered();
 
-  private:
+
+private:
     Ui::MainWindow *ui;
     Ui::settings *ui_set;
     settings *window_set;
@@ -57,6 +63,10 @@ class MainWindow : public QMainWindow {
     QTcpSocket *m_tcpSocket;
     QSettings *m_settings;
     QRegularExpression m_QRegExp;
+    QByteArray m_sendHeader;
+    QByteArray m_sendData;
+    QByteArray m_recvHeader;
+    QByteArray m_recvData;
 };
 
 #endif // MAINWINDOW_H
