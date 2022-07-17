@@ -46,23 +46,23 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
     switch (type) {
     case QtDebugMsg:
-        log << "(Debug):";
+        log << "(DEBUG) : ";
         break;
     case QtWarningMsg:
-        log << "(Warning):";
+        log << "(WARN)  : ";
         fp = stderr;
         break;
     case QtCriticalMsg:
-        log << "(Critical):";
+        log << "(Critical) : ";
         break;
     case QtFatalMsg:
-        log << "(Fatal):";
+        log << "(FATAL) : ";
         break;
     case QtInfoMsg:
-        log << "(Info):";
+        log << "(INFO)  : ";
         break;
     default:
-        log << "(unknown):";
+        log << "(unknown) : ";
         break;
     }
 #if defined(QT_MESSAGELOGCONTEXT)
@@ -73,7 +73,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #error "No macro definition found"
 #endif
     if(MainWindow::ms_log_browser != nullptr){
+        auto iPreColor = MainWindow::ms_log_browser->textColor();
+        if(text.contains("REQ", Qt::CaseSensitive)){
+            MainWindow::ms_log_browser->setTextColor(QColor("Green"));
+        }else if(text.contains("RES", Qt::CaseSensitive)){
+            MainWindow::ms_log_browser->setTextColor(QColor("Purple"));
+        }
         MainWindow::ms_log_browser->append(text);
+        MainWindow::ms_log_browser->setTextColor(iPreColor);
     }else{
         log << Qt::endl;
         fprintf(fp, "%s",

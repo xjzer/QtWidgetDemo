@@ -135,13 +135,13 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         m_tcpSocket->write(iSendHeader + iSendData);
     }
     if (m_tcpSocket->waitForBytesWritten()) {
-        qInfo().noquote() << iSendHeader.toHex(' ') << "|" << iSendData.toHex(' ');
+        qInfo().noquote() << "REQ" <<iSendHeader.toHex(' ').toUpper() << "|" << iSendData.toHex(' ').toUpper();
     }
     if (m_tcpSocket->waitForReadyRead()) {
         iRecvHeader      = m_tcpSocket->read(8);
         auto iDataLength = iRecvHeader.toHex().last(8).toUInt(&ok, 16);
         iRecvData        = m_tcpSocket->read(iDataLength);
-        qInfo().noquote() << iRecvHeader.toHex(' ') << "|" << iRecvData.toHex(' ');
+        qInfo().noquote() << "RES" << iRecvHeader.toHex(' ').toUpper() << "|" << iRecvData.toHex(' ').toUpper();
     }
 }
 
