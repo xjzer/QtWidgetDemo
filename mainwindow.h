@@ -15,7 +15,7 @@
 #include <QRegularExpression>
 #include <QTcpSocket>
 #include <QTreeWidgetItem>
-
+#include <QTextBrowser>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow {
 
     friend void myMessageOutput(QtMsgType type, const QMessageLogContext &context,
                                 const QString &msg);
-
+    static QTextBrowser *ms_log_browser;
   private slots:
     void on_pushButton_clicked();
     void on_pushButton_send_clicked();
@@ -51,13 +51,12 @@ class MainWindow : public QMainWindow {
   private:
     Ui::MainWindow *ui;
     Ui::settings *ui_set;
-
     settings *window_set;
-
     QString m_adddress;
     quint16 m_port;
     QTcpSocket *m_tcpSocket;
     QSettings *m_settings;
     QRegularExpression m_QRegExp;
 };
+
 #endif // MAINWINDOW_H

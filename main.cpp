@@ -29,8 +29,10 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
+
     qInstallMessageHandler(myMessageOutput);
     MainWindow w;
+
     w.show();
 
     return a.exec();
@@ -64,15 +66,18 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     }
 #if defined(QT_MESSAGELOGCONTEXT)
-    log << msg << " " << context.file << ":" << context.line << " " << context.function << Qt::endl;
+    log << msg << " " << context.file << ":" << context.line << " " << context.function;
 #elif defined(QT_NO_MESSAGELOGCONTEXT)
-    log << msg << Qt::endl;
+    log << msg;
 #elif
 #error "No macro definition found"
 #endif
-
-    fprintf(fp, "%s",
-            text.toLocal8Bit().constData()); // or fprintf(stderr, "%s", qPrintable(text));
-
+    if(MainWindow::ms_log_browser != nullptr){
+        MainWindow::ms_log_browser->append(text);
+    }else{
+        log << Qt::endl;
+        fprintf(fp, "%s",
+                text.toLocal8Bit().constData()); // or fprintf(stderr, "%s", qPrintable(text));
+    }
     fflush(fp);
 }

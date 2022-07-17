@@ -18,6 +18,9 @@
 #include <QMetaEnum>
 #include <QNetworkProxy>
 #include <QRegularExpression>
+
+QTextBrowser *MainWindow::ms_log_browser = nullptr;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), window_set(new settings(this)) {
     ui->setupUi(this);
@@ -29,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
                      SLOT(slot_action_settings_trigger()));
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
+    MainWindow::ms_log_browser = ui->textBrowser;
 }
 MainWindow::~MainWindow() {
     delete ui;
