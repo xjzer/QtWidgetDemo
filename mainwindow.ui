@@ -19,6 +19,9 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTreeWidget" name="treeWidget_doipConsole">
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
         <column>
          <property name="text">
           <string>Payload</string>

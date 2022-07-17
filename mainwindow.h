@@ -50,9 +50,12 @@ class MainWindow : public QMainWindow {
     void slot_socket_bytesWritten(qint64 bytes);
     void slot_socket_ready_read();
     void slot_action_settings_trigger();
+    void slot_action_insert_triggered(bool checked);
+    void slot_action_delete_triggered(bool checked);
 
     void on_action_connect_triggered();
 
+    void on_treeWidget_doipConsole_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::MainWindow *ui;
@@ -67,6 +70,9 @@ private:
     QByteArray m_sendData;
     QByteArray m_recvHeader;
     QByteArray m_recvData;
+    QAction *m_action_insert;
+    QAction *m_action_delete;
+    QTreeWidgetItem *m_CurItem;
 };
 
 #endif // MAINWINDOW_H
