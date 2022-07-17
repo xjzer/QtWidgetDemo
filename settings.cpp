@@ -156,7 +156,6 @@ void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
 }
 
 void settings::on_buttonBox_clicked(QAbstractButton *button) {
-
     const int currentIndex = ui->tab_setting->currentIndex();
     m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->currentIndex()));
     if (button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::Save))) {

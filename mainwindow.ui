@@ -36,7 +36,7 @@
        <enum>QFrame::StyledPanel</enum>
       </property>
       <property name="viewMode">
-       <enum>QMdiArea::SubWindowView</enum>
+       <enum>QMdiArea::TabbedView</enum>
       </property>
       <widget class="QWidget" name="subwindow_console">
        <property name="windowTitle">
@@ -147,6 +147,16 @@
            <item>
             <property name="text">
              <string>36</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>3E 00</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>3E 80</string>
             </property>
            </item>
           </item>

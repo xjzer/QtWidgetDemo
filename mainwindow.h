@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 00:40:30
+ * @LastEditTime : 2022-07-18 00:01:37
  */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -30,7 +30,9 @@ class MainWindow : public QMainWindow {
     enum PayloadTypeValue : quint16 {
         ROUTING_ACTIVATION_REQ  = 0x0005,
         ROUTING_ACTIVATION_RESP = 0x0006,
-        UDS_REQ                 = 0X8001,
+        UDS_MSG                 = 0X8001,
+        UDS_ACK                 = 0X8002,
+        UDS_NACK                = 0X8003,
     };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -52,6 +54,7 @@ class MainWindow : public QMainWindow {
     void slot_action_settings_trigger();
     void slot_action_insert_triggered(bool checked);
     void slot_action_delete_triggered(bool checked);
+    void slot_timeout(void);
 
     void on_action_connect_triggered();
 
@@ -73,6 +76,7 @@ class MainWindow : public QMainWindow {
     QAction *m_action_insert;
     QAction *m_action_delete;
     QTreeWidgetItem *m_CurItem;
+    QTimer *m_timer;
 };
 
 #endif // MAINWINDOW_H

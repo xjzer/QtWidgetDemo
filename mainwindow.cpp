@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 19:17:21
+ * @LastEditTime : 2022-07-18 00:08:16
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -19,6 +19,8 @@
 #include <QMetaEnum>
 #include <QNetworkProxy>
 #include <QRegularExpression>
+#include <QTimer>
+
 QTextBrowser *MainWindow::ms_log_browser = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -28,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_tcpSocket     = new QTcpSocket(this);
     m_action_insert = new QAction("insert");
     m_action_delete = new QAction("delete");
+    m_timer         = new QTimer(this);
 
     ui->pushButton_uds_send->setText(tr("发送"));
 
@@ -43,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
                      SLOT(slot_action_insert_triggered(bool)));
     QObject::connect(this->m_action_delete, SIGNAL(triggered(bool)), this,
                      SLOT(slot_action_delete_triggered(bool)));
+    QObject::connect(this->m_timer, SIGNAL(timeout()), this, SLOT(slot_timeout()));
 
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
@@ -51,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     //支持右键菜单
     ui->treeWidget_doipConsole->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    //MDI
+    // MDI
     ui->mdiArea->setViewMode(QMdiArea::TabbedView);
     ui->mdiArea->setActiveSubWindow(ui->mdiArea->subWindowList().front());
 }
@@ -141,7 +145,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
             iDataStream << iDoip.mRoutingReq.mOEM;
         }
         break;
-    case UDS_REQ:
+    case UDS_MSG:
         iDoip.mUdsReq.mSource = iSourceAddress;
         iDoip.mUdsReq.mTarget = iTargetPhy;
         iDataStream << iDoip.mUdsReq.mSource;
@@ -170,16 +174,25 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         if (!m_tcpSocket->waitForBytesWritten(3000)) {
         }
     } else {
+        this->m_timer->stop();
         qDebug() << m_tcpSocket->state() << m_tcpSocket->isValid();
+    }
+}
+
+void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
+    bool ok;
+
+    //不打印3E服务，可以设置为配置项
+    if (m_sendHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+        m_sendData.at(4) == 0x3E) {
+
+    } else {
+        qInfo().noquote() << "REQ" << m_sendHeader.toHex(' ').toUpper() << "|"
+                          << m_sendData.toHex(' ').toUpper();
     }
 
     m_sendHeader.clear();
     m_sendData.clear();
-}
-
-void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
-    qInfo().noquote() << "REQ" << m_sendHeader.toHex(' ').toUpper() << "|"
-                      << m_sendData.toHex(' ').toUpper();
     if (!m_tcpSocket->waitForReadyRead(3000)) {
         qDebug() << "timeout_ready_read";
     }
@@ -193,8 +206,32 @@ void MainWindow::slot_socket_ready_read() {
     m_recvHeader     = m_tcpSocket->read(8);
     auto iDataLength = m_recvHeader.toHex().last(8).toUInt(&ok, 16);
     m_recvData       = m_tcpSocket->read(iDataLength);
-    qInfo().noquote() << "RES" << m_recvHeader.toHex(' ').toUpper() << "|"
-                      << m_recvData.toHex(' ').toUpper();
+
+    if ((m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) ==
+             UDS_ACK && //不打印3E服务，可以设置为配置项
+         m_recvData.at(5) == 0x3E) ||
+        (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+         m_recvData.at(4) == 0x7E)) {
+
+    } else {
+        qInfo().noquote() << "RES" << m_recvHeader.toHex(' ').toUpper() << "|"
+                          << m_recvData.toHex(' ').toUpper();
+    }
+
+    //    qDebug() <<"========" << m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16)
+    //    <<(quint32)m_recvData.at(4);
+
+    window_set->m_settings->beginGroup(
+        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
+    if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+        m_recvData.at(4) == 0x50) { //判断收到的是否为UDS 10服务的肯定响应报文
+        if (window_set->m_settings->value(ui_set->checkBox_uds_3e->text())
+                .toBool()) { //如果设置3E自动触发
+            m_timer->start(3000);
+        }
+    }
+    window_set->m_settings->endGroup();
+
     m_recvHeader.clear();
     m_recvData.clear();
 }
@@ -222,10 +259,32 @@ void MainWindow::slot_action_delete_triggered(bool checked) {
     bool ok;
     if (m_CurItem->parent()) { //一级节点不能删除
         if (m_CurItem->parent()->text(0).first(4).toUInt(&ok, 16) !=
-            UDS_REQ) { // UDS二级节点不能删除
+            UDS_MSG) { // UDS二级节点不能删除
             delete m_CurItem;
         }
     }
+}
+
+void MainWindow::slot_timeout() {
+    QTreeWidgetItemIterator it(ui->treeWidget_doipConsole);
+    while (*it) {
+        int iRet = (*it)->text(0).compare("3E 80", Qt::CaseSensitive); //遍历寻找3E 80 item
+        if (iRet == 0) {
+            break;
+        }
+        ++it;
+    }
+
+    window_set->m_settings->beginGroup(
+        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
+
+    if (window_set->m_settings->value(ui_set->checkBox_uds_3e->text())
+            .toBool()) {                                            //如果设置3E自动触发
+        emit ui->treeWidget_doipConsole->itemDoubleClicked(*it, 0); //发送信号，类似双击3E 80
+    } else {
+        m_timer->stop();
+    }
+    window_set->m_settings->endGroup();
 }
 
 void MainWindow::on_action_connect_triggered() {
