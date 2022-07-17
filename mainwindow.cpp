@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 00:40:25
+ * @LastEditTime : 2022-07-17 10:22:35
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -73,6 +73,8 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
     bool ok;
     QByteArray iSendHeader;
     QByteArray iSendData;
+    QByteArray iRecvHeader;
+    QByteArray iRecvData;
     DoIPProtocol iDoip;
 
     QDataStream iHeaderStream(&iSendHeader, QDataStream::Append | QDataStream::ReadWrite);
@@ -130,6 +132,12 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
     }
     if (m_tcpSocket->waitForBytesWritten()) {
         qInfo().noquote() << iSendHeader.toHex(' ') << "|" << iSendData.toHex(' ');
+    }
+    if (m_tcpSocket->waitForReadyRead()) {
+        iRecvHeader      = m_tcpSocket->read(8);
+        auto iDataLength = iRecvHeader.toHex().last(8).toUInt(&ok, 16);
+        iRecvData        = m_tcpSocket->read(iDataLength);
+        qInfo().noquote() << iRecvHeader.toHex(' ') << "|" << iRecvData.toHex(' ');
     }
 }
 
