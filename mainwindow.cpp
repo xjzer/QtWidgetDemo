@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 18:34:32
+ * @LastEditTime : 2022-07-17 19:17:21
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_action_insert = new QAction("insert");
     m_action_delete = new QAction("delete");
 
-    ui->pushButton_send->setText(tr("发送"));
+    ui->pushButton_uds_send->setText(tr("发送"));
 
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
         QHeaderView::Stretch); // treeWidget列宽自适应
@@ -70,23 +70,19 @@ void MainWindow::on_pushButton_clicked() {
     qDebug() << m_tcpSocket->isValid();
 }
 
-void MainWindow::on_pushButton_send_clicked() {
-    //    UnconnectedState,
-    //    HostLookupState,
-    //    ConnectingState,
-    //    ConnectedState,
-    //    BoundState,
-    //    ListeningState,
-    //    ClosingState
-    quint8 buf[] = {0x02, 0xFD, 0x00, 0x05, 0x00, 0x00, 0x00, 0x07, 0x0E, 0x80,
-                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
-        this->m_tcpSocket->isValid()) {
-        m_tcpSocket->write((const char *)buf, sizeof(buf) - 1);
-        qDebug() << "write success";
-    } else {
-        qDebug() << "write error";
+void MainWindow::on_pushButton_uds_send_clicked() {
+    QTreeWidgetItem *iItem = nullptr;
+    QList<QTreeWidgetItem *> iItemList;
+    QString iItemText;
+    iItem = new QTreeWidgetItem;
+    iItem->setText(0, ui->lineEdit_custom_uds->text());
+    iItem->setHidden(true);
+
+    iItemList = ui->treeWidget_doipConsole->findItems("8001", Qt::MatchContains);
+    if (iItemList.count() == 1) {
+        iItemList.front()->addChild(iItem);
     }
+    emit ui->treeWidget_doipConsole->itemDoubleClicked(iItem, 0);
 }
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {

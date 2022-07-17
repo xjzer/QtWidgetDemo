@@ -14,121 +14,113 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <widget class="QTreeWidget" name="treeWidget_doipConsole">
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <column>
+       <property name="text">
+        <string>Payload</string>
+       </property>
+      </column>
       <item>
-       <widget class="QTreeWidget" name="treeWidget_doipConsole">
-        <property name="contextMenuPolicy">
-         <enum>Qt::DefaultContextMenu</enum>
+       <property name="text">
+        <string>8001 Diagnostic message</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>10</string>
         </property>
-        <column>
-         <property name="text">
-          <string>Payload</string>
-         </property>
-        </column>
         <item>
          <property name="text">
-          <string>8001 Diagnostic message</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>10</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>10 01</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>10 02</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>10 03</string>
-           </property>
-          </item>
-         </item>
-         <item>
-          <property name="text">
-           <string>19</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>22</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>2E</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>14</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>85</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>27</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>38</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>37</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>36</string>
-          </property>
-         </item>
-        </item>
-        <item>
-         <property name="text">
-          <string>8002 Diagnostic message positive acknowledgement</string>
+          <string>10 01</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>0005 Routing activation request</string>
+          <string>10 02</string>
          </property>
         </item>
-       </widget>
+        <item>
+         <property name="text">
+          <string>10 03</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>19</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>22</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>22 F1 95</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>2E</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>10</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>14</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>14 FF FF FF</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>85</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>27</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>38</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>37</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>36</string>
+        </property>
+       </item>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLineEdit" name="lineEdit"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_send">
-          <property name="text">
-           <string>PushButton</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <property name="text">
+        <string>8002 Diagnostic message positive acknowledgement</string>
+       </property>
       </item>
-     </layout>
+      <item>
+       <property name="text">
+        <string>0005 Routing activation request</string>
+       </property>
+      </item>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -149,6 +141,20 @@
        <widget class="QPushButton" name="pushButton">
         <property name="text">
          <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLineEdit" name="lineEdit_custom_uds"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_uds_send">
+        <property name="text">
+         <string>UDS自定义</string>
         </property>
        </widget>
       </item>

@@ -14,8 +14,8 @@
 #include <QMainWindow>
 #include <QRegularExpression>
 #include <QTcpSocket>
-#include <QTreeWidgetItem>
 #include <QTextBrowser>
+#include <QTreeWidgetItem>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow {
     enum PayloadTypeValue : quint16 {
         ROUTING_ACTIVATION_REQ  = 0x0005,
         ROUTING_ACTIVATION_RESP = 0x0006,
-        UDS_REQ = 0X8001,
+        UDS_REQ                 = 0X8001,
     };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -43,7 +43,7 @@ class MainWindow : public QMainWindow {
     static QTextBrowser *ms_log_browser;
   private slots:
     void on_pushButton_clicked();
-    void on_pushButton_send_clicked();
+    void on_pushButton_uds_send_clicked();
 
     void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
@@ -57,7 +57,7 @@ class MainWindow : public QMainWindow {
 
     void on_treeWidget_doipConsole_customContextMenuRequested(const QPoint &pos);
 
-private:
+  private:
     Ui::MainWindow *ui;
     Ui::settings *ui_set;
     settings *window_set;
