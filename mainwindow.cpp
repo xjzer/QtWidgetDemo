@@ -50,6 +50,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     //支持右键菜单
     ui->treeWidget_doipConsole->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    //MDI
+    ui->mdiArea->setViewMode(QMdiArea::TabbedView);
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -73,7 +76,6 @@ void MainWindow::on_pushButton_clicked() {
 void MainWindow::on_pushButton_uds_send_clicked() {
     QTreeWidgetItem *iItem = nullptr;
     QList<QTreeWidgetItem *> iItemList;
-    QString iItemText;
     iItem = new QTreeWidgetItem;
     iItem->setText(0, ui->lineEdit_custom_uds->text());
     iItem->setHidden(true);
