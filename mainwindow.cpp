@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-18 00:08:16
+ * @LastEditTime : 2022-07-18 08:36:58
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -15,12 +15,12 @@
 #include <QDebug>
 #include <QFlags>
 #include <QInputDialog>
+#include <QLibrary>
 #include <QLibraryInfo>
 #include <QMetaEnum>
 #include <QNetworkProxy>
 #include <QRegularExpression>
 #include <QTimer>
-
 QTextBrowser *MainWindow::ms_log_browser = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this->m_action_delete, SIGNAL(triggered(bool)), this,
                      SLOT(slot_action_delete_triggered(bool)));
     QObject::connect(this->m_timer, SIGNAL(timeout()), this, SLOT(slot_timeout()));
+    QObject::connect(ui->lineEdit_custom_uds, SIGNAL(returnPressed()), ui->pushButton_uds_send,
+                     SIGNAL(clicked()), Qt::UniqueConnection); //todo  UniqueConnection
 
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
@@ -89,7 +91,7 @@ void MainWindow::on_pushButton_uds_send_clicked() {
     if (iItemList.count() == 1) {
         iItemList.front()->addChild(iItem);
     }
-    emit ui->treeWidget_doipConsole->itemDoubleClicked(iItem, 0);
+    emit ui->treeWidget_doipConsole->itemDoubleClicked(iItem, m_MagicNumButtonClicked);
 }
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
@@ -151,6 +153,9 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         iDataStream << iDoip.mUdsReq.mSource;
         iDataStream << iDoip.mUdsReq.mTarget;
         m_sendData = m_sendData + QByteArray::fromHex(item->text(0).toLocal8Bit());
+        if(column == m_MagicNumButtonClicked){
+            delete item;
+        }
         break;
     default:
         qDebug() << item->text(1).toStdU16String();
@@ -195,7 +200,7 @@ void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
 
     m_sendHeader.clear();
     m_sendData.clear();
-    if (!m_tcpSocket->waitForReadyRead(3000)) {
+    if (!m_tcpSocket->waitForReadyRead(500)) {
         qDebug() << "timeout_ready_read";
     }
 
@@ -231,6 +236,10 @@ void MainWindow::slot_socket_ready_read() {
                 .toBool()) { //如果设置3E自动触发
             m_timer->start(3000);
         }
+    } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+               m_recvData.at(4) == 0x67) {
+        m_Uds27Key = m_recvData.last(4);
+        qDebug() << "key = " << m_Uds27Key.toHex(' ');
     }
     window_set->m_settings->endGroup();
 

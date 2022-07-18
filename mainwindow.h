@@ -77,6 +77,9 @@ class MainWindow : public QMainWindow {
     QAction *m_action_delete;
     QTreeWidgetItem *m_CurItem;
     QTimer *m_timer;
+    QByteArray m_Uds27Seed;
+    QByteArray m_Uds27Key;
+    const int m_MagicNumButtonClicked = 0xFEFE;
 };
 
 #endif // MAINWINDOW_H

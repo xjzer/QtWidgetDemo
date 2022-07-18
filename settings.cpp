@@ -64,11 +64,11 @@ void settings::on_pushButton_dll_clicked() {
     }
 }
 void settings::restore_default_tab_address() {
-    ui->lineEdit_tester->setText("0x0E80");
+    ui->lineEdit_tester->setText("0E80");
     ui->lineEdit_ip->setText("0.0.0.0");
     ui->lineEdit_port->setText("13400");
-    ui->lineEdit_physical->setText("0x0000");
-    ui->lineEdit_functional->setText("0x0000");
+    ui->lineEdit_physical->setText("0000");
+    ui->lineEdit_functional->setText("0000");
 }
 
 void settings::restore_default_tab_uds() {
