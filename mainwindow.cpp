@@ -175,6 +175,8 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         }
     } else {
         this->m_timer->stop();
+        m_sendHeader.clear();
+        m_sendData.clear();
         qDebug() << m_tcpSocket->state() << m_tcpSocket->isValid();
     }
 }
