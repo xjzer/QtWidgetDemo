@@ -191,7 +191,6 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
 }
 
 void settings::on_tab_setting_currentChanged(int index) {
-    m_settings->beginGroup(ui->tab_setting->tabText(index));
     if (index == ui->tab_setting->indexOf(ui->tab_address)) {
         handle_setting_tab_address(LOAD);
     }
@@ -203,7 +202,6 @@ void settings::on_tab_setting_currentChanged(int index) {
     }
     if (index == ui->tab_setting->indexOf(ui->tab_address)) {
     }
-    m_settings->endGroup();
 }
 
 void settings::on_pushButton_genkey_clicked() {
