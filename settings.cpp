@@ -5,7 +5,7 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-19 23:03:06
+ * @LastEditTime : 2022-07-20 00:24:53
  */
 #include "settings.h"
 #include "ui_settings.h"
@@ -42,27 +42,33 @@ settings::~settings() {
     delete ui;
 }
 
-void settings::on_pushButton_odx_clicked() {
+static void clicked_pushButton_select_file(QWidget *parent, QComboBox *comboBox,
+                                           const QString &filter = QString()) {
     QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
-        this, tr("Open File"), QDir::currentPath(), QString("Odx (*.odx-d);;ALL files (*)")));
-
+        parent, QObject::tr("Open File"), QDir::currentPath(), filter));
     if (!directory.isEmpty()) {
-        if (ui->comboBox_odx->findText(directory) == -1)
-            ui->comboBox_odx->addItem(directory);
-        ui->comboBox_odx->setCurrentIndex(ui->comboBox_odx->findText(directory));
+        if (comboBox->findText(directory) == -1)
+            comboBox->addItem(directory);
+        comboBox->setCurrentIndex(comboBox->findText(directory));
     }
+}
+
+void settings::on_pushButton_odx_clicked() {
+    clicked_pushButton_select_file(this, ui->comboBox_odx, QString("Odx (*.odx-d);;ALL files (*)"));
 }
 
 void settings::on_pushButton_dll_clicked() {
-    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
-        this, tr("Open File"), QDir::currentPath(), QString("Odx (*.dll);;ALL files (*)")));
-
-    if (!directory.isEmpty()) {
-        if (ui->comboBox_dll->findText(directory) == -1)
-            ui->comboBox_dll->addItem(directory);
-        ui->comboBox_dll->setCurrentIndex(ui->comboBox_dll->findText(directory));
-    }
+    clicked_pushButton_select_file(this, ui->comboBox_dll_1, QString("Odx (*.dll);;ALL files (*)"));
 }
+
+void settings::on_pushButton_dll_2_clicked() {
+    clicked_pushButton_select_file(this, ui->comboBox_dll_2, QString("Odx (*.dll);;ALL files (*)"));
+}
+
+void settings::on_pushButton_dll_3_clicked() {
+    clicked_pushButton_select_file(this, ui->comboBox_dll_3, QString("Odx (*.dll);;ALL files (*)"));
+}
+
 void settings::restore_default_tab_address() {
     ui->lineEdit_tester->setText("0E80");
     ui->lineEdit_ip->setText("0.0.0.0");
@@ -73,7 +79,7 @@ void settings::restore_default_tab_address() {
 
 void settings::restore_default_tab_uds() {
     ui->checkBox_uds_3e->setChecked(true);
-    ui->lineEdit_seedSize->setText("4");
+    ui->spinBox_seedSize->setValue(4);
 }
 
 void settings::restore_default_tab_payload_item() {
@@ -135,6 +141,33 @@ void settings::settings_handle(SettingsHandle handle, QCheckBox *checkBox,
     }
 }
 
+void settings::settings_handle(SettingsHandle handle, QLabel *label, QSpinBox *spinBox) {
+    switch (handle) {
+    case LOAD:
+        spinBox->setValue(m_settings->value(label->text()).toInt());
+        break;
+    case SAVE:
+        m_settings->setValue(label->text(), spinBox->value());
+        break;
+    default:
+        break;
+    }
+}
+
+void settings::settings_handle(SettingsHandle handle, QString key, QSpinBox *spinBox)
+{
+    switch (handle) {
+    case LOAD:
+        spinBox->setValue(m_settings->value(key).toInt());
+        break;
+    case SAVE:
+        m_settings->setValue(key, spinBox->value());
+        break;
+    default:
+        break;
+    }
+}
+
 void settings::handle_setting_tab_address(SettingsHandle handle) {
     m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_address)));
     settings_handle(handle, ui->label_tester, ui->lineEdit_tester);
@@ -148,10 +181,20 @@ void settings::handle_setting_tab_address(SettingsHandle handle) {
 void settings::handle_setting_tab_uds(SettingsHandle handle) {
     m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_uds)));
     settings_handle(handle, ui->label_odx, ui->comboBox_odx);
-    settings_handle(handle, ui->label_dll, ui->comboBox_dll);
+
+    settings_handle(handle, ui->label_dll_1, ui->comboBox_dll_1);
+    settings_handle(handle, "security1", ui->spinBox_dll_1);
+
+    settings_handle(handle, ui->label_dll_2, ui->comboBox_dll_2);
+    settings_handle(handle, "security2", ui->spinBox_dll_2);
+
+    settings_handle(handle, ui->label_dll_3, ui->comboBox_dll_3);
+    settings_handle(handle, "security3", ui->spinBox_dll_3);
+
     settings_handle(handle, ui->label_genkey, ui->comboBox_genkey);
-    settings_handle(handle, ui->label_seedSize, ui->lineEdit_seedSize);
+    settings_handle(handle, ui->label_seedSize, ui->spinBox_seedSize);
     settings_handle(handle, ui->checkBox_uds_3e);
+
     m_settings->endGroup();
 }
 

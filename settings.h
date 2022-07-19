@@ -18,6 +18,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSettings>
+#include <QSpinBox>
 
 namespace Ui {
 class settings;
@@ -46,6 +47,10 @@ class settings : public QDialog {
 
     void on_pushButton_genkey_clicked();
 
+    void on_pushButton_dll_2_clicked();
+
+    void on_pushButton_dll_3_clicked();
+
 private:
     void default_setting(void);
     void restore_default_tab_address(void);
@@ -55,6 +60,8 @@ private:
     void settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line);
     void settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox);
     void settings_handle(SettingsHandle handle, QCheckBox *checkBox, QLineEdit *line);
+    void settings_handle(SettingsHandle handle, QLabel *label, QSpinBox * spinBox);
+    void settings_handle(SettingsHandle handle, QString key, QSpinBox *spinBox); //spinBox作为value，绑定自定义key
 
     void handle_setting_tab_address(SettingsHandle handle);
     void handle_setting_tab_uds(SettingsHandle handle);

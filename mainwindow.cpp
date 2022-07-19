@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-19 09:46:57
+ * @LastEditTime : 2022-07-20 01:10:04
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -19,6 +19,7 @@
 #include <QInputDialog>
 #include <QLibrary>
 #include <QLibraryInfo>
+#include <QMessageBox>
 #include <QMetaEnum>
 #include <QNetworkProxy>
 #include <QProcess>
@@ -165,21 +166,18 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         break;
     }
 
-    window_set->m_settings->beginGroup(
-        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
     if (m_sendHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-        m_sendData.at(4) == 0x27) {
-        if (!m_Uds27Seed.isEmpty()) {
+        m_sendData.at(4) == 0x27) {   //判断是否为发送27服务请求
+        if (!m_Uds27Seed.isEmpty()) { //判断是否已经请求过种子
             QFile aFile("uds27key");
             aFile.open(QIODevice::ReadOnly);
             QString readKey = aFile.readAll();
             m_sendData      = m_sendData + QByteArray::fromHex(readKey.toLocal8Bit());
-            m_Uds27Seed.clear();
+            m_Uds27Seed.clear(); //种子每次使用完毕后丢弃
         } else {
             qDebug() << "m_Uds27Seed.isEmpty() " << m_Uds27Seed.isEmpty();
         }
     }
-    window_set->m_settings->endGroup();
 
     if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
         this->m_tcpSocket->isValid()) {
@@ -246,32 +244,40 @@ void MainWindow::slot_socket_ready_read() {
     //    qDebug() <<"========" << m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16)
     //    <<(quint32)m_recvData.at(4);
 
-    window_set->m_settings->beginGroup(
-        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
-    m_seedSize = window_set->m_settings->value(ui_set->label_seedSize->text()).toUInt();
+    m_seedSize = ui_set->spinBox_seedSize->value();
     if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-        m_recvData.at(4) == 0x50) { //判断收到的是否为UDS 10服务的肯定响应报文
-        if (window_set->m_settings->value(ui_set->checkBox_uds_3e->text())
-                .toBool()) { //如果设置3E自动触发
+        m_recvData.at(4) == 0x50) { //判断收到的是否为：UDS消息 && 10服务的肯定响应
+        if (ui_set->checkBox_uds_3e->isChecked()) { //如果设置3E自动触发
             m_timer->start(3000);
         }
     } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
                m_recvData.at(4) == 0x67 &&
                m_recvData.size() ==
-                   6 + m_seedSize) //判断收到的时UDS消息 && 27服务的响应 && 带有种子
+                   6 + m_seedSize) //判断收到的是否为：UDS消息 && 27服务的响应 && 带有种子
     {
         m_Uds27Seed = m_recvData.last(4);
-        qDebug() << "seed = " << m_Uds27Seed.toHex(' ');
         QStringList arguments;
-        arguments << window_set->m_settings->value(ui_set->label_dll->text()).toString();
+        if (m_recvData.at(5) == ui_set->spinBox_dll_1->value()) {
+            arguments << ui_set->comboBox_dll_1->currentText();
+        } else if (m_recvData.at(5) == ui_set->spinBox_dll_2->value()) {
+            arguments << ui_set->comboBox_dll_2->currentText();
+        } else if (m_recvData.at(5) == ui_set->spinBox_dll_3->value()) {
+            arguments << ui_set->comboBox_dll_3->currentText();
+        } else {
+            QMessageBox::information(NULL, "提示", tr("未找到对应安全等级"), QMessageBox::Ok,
+                                     QMessageBox::Ok);
+            return;
+        }
+        QFileInfo gen_key_file(ui_set->comboBox_genkey->currentText());
+        if (!gen_key_file.isFile()) {
+            QMessageBox::information(NULL, "提示", tr("dll文件路径为空/错误"), QMessageBox::Ok,
+                                     QMessageBox::Ok);
+            return;
+        }
         arguments << m_Uds27Seed.toHex();
-        qDebug() << "exe = "
-                 << window_set->m_settings->value(ui_set->label_genkey->text()).toString()
-                 << "arg = " << arguments;
-        QProcess::execute(window_set->m_settings->value(ui_set->label_genkey->text()).toString(),
-                          arguments);
+        // qDebug() << "exe = " << ui_set->comboBox_genkey->currentText() << "arg = " << arguments;
+        QProcess::execute(ui_set->comboBox_genkey->currentText(), arguments);
     }
-    window_set->m_settings->endGroup();
 
     m_recvHeader.clear();
     m_recvData.clear();
@@ -316,16 +322,11 @@ void MainWindow::slot_timeout() {
         ++it;
     }
 
-    window_set->m_settings->beginGroup(
-        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
-
-    if (window_set->m_settings->value(ui_set->checkBox_uds_3e->text())
-            .toBool()) {                                            //如果设置3E自动触发
+    if (ui_set->checkBox_uds_3e->isChecked()) {                     //如果设置3E自动触发
         emit ui->treeWidget_doipConsole->itemDoubleClicked(*it, 0); //发送信号，类似双击3E 80
     } else {
         m_timer->stop();
     }
-    window_set->m_settings->endGroup();
 }
 
 void MainWindow::on_action_connect_triggered() {
@@ -335,11 +336,9 @@ void MainWindow::on_action_connect_triggered() {
         ui->action_connect->setEnabled(false);
 
         qApp->processEvents();
-        auto tabIndex = ui_set->tab_setting->indexOf(ui_set->tab_address);
-        window_set->m_settings->beginGroup(ui_set->tab_setting->tabText(tabIndex));
+        auto tabIndex    = ui_set->tab_setting->indexOf(ui_set->tab_address);
         this->m_adddress = ui_set->lineEdit_ip->text();
         this->m_port     = ui_set->lineEdit_port->text().toInt();
-        window_set->m_settings->endGroup();
         qDebug() << "address=" << this->m_adddress << "port=" << this->m_port;
 
         ui->action_connect->setText(tr("连接中"));
