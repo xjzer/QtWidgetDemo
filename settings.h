@@ -44,7 +44,9 @@ class settings : public QDialog {
 
     void on_tab_setting_currentChanged(int index);
 
-  private:
+    void on_pushButton_genkey_clicked();
+
+private:
     void default_setting(void);
     void restore_default_tab_address(void);
     void restore_default_tab_uds(void);

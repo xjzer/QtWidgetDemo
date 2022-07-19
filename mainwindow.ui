@@ -65,6 +65,11 @@
             <string>Payload</string>
            </property>
           </column>
+          <column>
+           <property name="text">
+            <string>Data</string>
+           </property>
+          </column>
           <item>
            <property name="text">
             <string>8001 Diagnostic message</string>
@@ -111,6 +116,11 @@
            </item>
            <item>
             <property name="text">
+             <string>31</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>10</string>
             </property>
            </item>
@@ -133,6 +143,36 @@
             <property name="text">
              <string>27</string>
             </property>
+            <item>
+             <property name="text">
+              <string>27 03</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 04</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 05</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 06</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 11</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 12</string>
+             </property>
+            </item>
            </item>
            <item>
             <property name="text">

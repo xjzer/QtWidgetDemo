@@ -73,6 +73,7 @@ void settings::restore_default_tab_address() {
 
 void settings::restore_default_tab_uds() {
     ui->checkBox_uds_3e->setChecked(true);
+    ui->lineEdit_seedSize->setText("4");
 }
 
 void settings::restore_default_tab_payload_item() {
@@ -145,6 +146,8 @@ void settings::handle_setting_tab_address(SettingsHandle handle) {
 void settings::handle_setting_tab_uds(SettingsHandle handle) {
     settings_handle(handle, ui->label_odx, ui->comboBox_odx);
     settings_handle(handle, ui->label_dll, ui->comboBox_dll);
+    settings_handle(handle, ui->label_genkey, ui->comboBox_genkey);
+    settings_handle(handle, ui->label_seedSize, ui->lineEdit_seedSize);
     settings_handle(handle, ui->checkBox_uds_3e);
 }
 
@@ -203,3 +206,16 @@ void settings::on_tab_setting_currentChanged(int index) {
     }
     m_settings->endGroup();
 }
+
+void settings::on_pushButton_genkey_clicked()
+{
+    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
+        this, tr("Open File"), QDir::currentPath(), QString("exe (*.exe);;ALL files (*)")));
+
+    if (!directory.isEmpty()) {
+        if (ui->comboBox_genkey->findText(directory) == -1)
+            ui->comboBox_genkey->addItem(directory);
+        ui->comboBox_genkey->setCurrentIndex(ui->comboBox_genkey->findText(directory));
+    }
+}
+

@@ -79,6 +79,7 @@ class MainWindow : public QMainWindow {
     QTimer *m_timer;
     QByteArray m_Uds27Seed;
     QByteArray m_Uds27Key;
+    quint32 m_seedSize;
     const int m_MagicNumButtonClicked = 0xFEFE;
 };
 

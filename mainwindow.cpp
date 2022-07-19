@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-18 08:36:58
+ * @LastEditTime : 2022-07-19 09:46:57
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -13,12 +13,15 @@
 #include "ui_settings.h"
 #include <QDataStream>
 #include <QDebug>
+#include <QFile>
+#include <QFileInfo>
 #include <QFlags>
 #include <QInputDialog>
 #include <QLibrary>
 #include <QLibraryInfo>
 #include <QMetaEnum>
 #include <QNetworkProxy>
+#include <QProcess>
 #include <QRegularExpression>
 #include <QTimer>
 QTextBrowser *MainWindow::ms_log_browser = nullptr;
@@ -48,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
                      SLOT(slot_action_delete_triggered(bool)));
     QObject::connect(this->m_timer, SIGNAL(timeout()), this, SLOT(slot_timeout()));
     QObject::connect(ui->lineEdit_custom_uds, SIGNAL(returnPressed()), ui->pushButton_uds_send,
-                     SIGNAL(clicked()), Qt::UniqueConnection); //todo  UniqueConnection
+                     SIGNAL(clicked()), Qt::UniqueConnection); // todo  UniqueConnection
 
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
@@ -153,7 +156,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         iDataStream << iDoip.mUdsReq.mSource;
         iDataStream << iDoip.mUdsReq.mTarget;
         m_sendData = m_sendData + QByteArray::fromHex(item->text(0).toLocal8Bit());
-        if(column == m_MagicNumButtonClicked){
+        if (column == m_MagicNumButtonClicked) {
             delete item;
         }
         break;
@@ -162,12 +165,27 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         break;
     }
 
-    // set payload length
-    iDoip.mHeader.mLength = m_sendData.size();
-    iHeaderStream << iDoip.mHeader.mLength;
+    window_set->m_settings->beginGroup(
+        ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
+    if (m_sendHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+        m_sendData.at(4) == 0x27) {
+        if (!m_Uds27Seed.isEmpty()) {
+            QFile aFile("uds27key");
+            aFile.open(QIODevice::ReadOnly);
+            QString readKey = aFile.readAll();
+            m_sendData      = m_sendData + QByteArray::fromHex(readKey.toLocal8Bit());
+            m_Uds27Seed.clear();
+        } else {
+            qDebug() << "m_Uds27Seed.isEmpty() " << m_Uds27Seed.isEmpty();
+        }
+    }
+    window_set->m_settings->endGroup();
 
     if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
         this->m_tcpSocket->isValid()) {
+        // set payload length
+        iDoip.mHeader.mLength = m_sendData.size();
+        iHeaderStream << iDoip.mHeader.mLength;
         m_tcpSocket->write(m_sendHeader + m_sendData);
 
         //设置不接受鼠标事件(todo bug)
@@ -176,7 +194,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         qApp->processEvents();
 
         //等待write
-        if (!m_tcpSocket->waitForBytesWritten(3000)) {
+        if (!m_tcpSocket->waitForBytesWritten(500)) {
         }
     } else {
         this->m_timer->stop();
@@ -200,7 +218,7 @@ void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
 
     m_sendHeader.clear();
     m_sendData.clear();
-    if (!m_tcpSocket->waitForReadyRead(500)) {
+    if (!m_tcpSocket->waitForReadyRead(3000)) {
         qDebug() << "timeout_ready_read";
     }
 
@@ -230,6 +248,7 @@ void MainWindow::slot_socket_ready_read() {
 
     window_set->m_settings->beginGroup(
         ui_set->tab_setting->tabText(ui_set->tab_setting->indexOf(ui_set->tab_uds)));
+    m_seedSize = window_set->m_settings->value(ui_set->label_seedSize->text()).toUInt();
     if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
         m_recvData.at(4) == 0x50) { //判断收到的是否为UDS 10服务的肯定响应报文
         if (window_set->m_settings->value(ui_set->checkBox_uds_3e->text())
@@ -237,9 +256,20 @@ void MainWindow::slot_socket_ready_read() {
             m_timer->start(3000);
         }
     } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-               m_recvData.at(4) == 0x67) {
-        m_Uds27Key = m_recvData.last(4);
-        qDebug() << "key = " << m_Uds27Key.toHex(' ');
+               m_recvData.at(4) == 0x67 &&
+               m_recvData.size() ==
+                   6 + m_seedSize) //判断收到的时UDS消息 && 27服务的响应 && 带有种子
+    {
+        m_Uds27Seed = m_recvData.last(4);
+        qDebug() << "seed = " << m_Uds27Seed.toHex(' ');
+        QStringList arguments;
+        arguments << window_set->m_settings->value(ui_set->label_dll->text()).toString();
+        arguments << m_Uds27Seed.toHex();
+        qDebug() << "exe = "
+                 << window_set->m_settings->value(ui_set->label_genkey->text()).toString()
+                 << "arg = " << arguments;
+        QProcess::execute(window_set->m_settings->value(ui_set->label_genkey->text()).toString(),
+                          arguments);
     }
     window_set->m_settings->endGroup();
 
@@ -335,6 +365,8 @@ void MainWindow::on_action_connect_triggered() {
         m_tcpSocket->disconnectFromHost();
         //修改按键文字
         ui->action_connect->setText("连接");
+        m_timer->stop();
+        m_Uds27Seed.clear();
     }
 
     ui->action_connect->setEnabled(true);
