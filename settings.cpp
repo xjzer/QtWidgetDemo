@@ -5,7 +5,7 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 00:40:33
+ * @LastEditTime : 2022-07-19 23:03:06
  */
 #include "settings.h"
 #include "ui_settings.h"
@@ -136,44 +136,44 @@ void settings::settings_handle(SettingsHandle handle, QCheckBox *checkBox,
 }
 
 void settings::handle_setting_tab_address(SettingsHandle handle) {
+    m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_address)));
     settings_handle(handle, ui->label_tester, ui->lineEdit_tester);
     settings_handle(handle, ui->label_ip, ui->lineEdit_ip);
     settings_handle(handle, ui->label_port, ui->lineEdit_port);
     settings_handle(handle, ui->label_physical, ui->lineEdit_physical);
     settings_handle(handle, ui->label_functional, ui->lineEdit_functional);
+    m_settings->endGroup();
 }
 
 void settings::handle_setting_tab_uds(SettingsHandle handle) {
+    m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_uds)));
     settings_handle(handle, ui->label_odx, ui->comboBox_odx);
     settings_handle(handle, ui->label_dll, ui->comboBox_dll);
     settings_handle(handle, ui->label_genkey, ui->comboBox_genkey);
     settings_handle(handle, ui->label_seedSize, ui->lineEdit_seedSize);
     settings_handle(handle, ui->checkBox_uds_3e);
+    m_settings->endGroup();
 }
 
 void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
+    m_settings->beginGroup(
+        ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_payload_item)));
     settings_handle(handle, ui->label_version, ui->comboBox_version);
     settings_handle(handle, ui->label_activation_type, ui->comboBox_activation_type);
     settings_handle(handle, ui->label_reserved_iso, ui->lineEdit_reserved_iso);
     settings_handle(handle, ui->checkBox_reserved_oem, ui->lineEdit_reserved_oem);
+    m_settings->endGroup();
 }
 
 void settings::on_buttonBox_clicked(QAbstractButton *button) {
     const int currentIndex = ui->tab_setting->currentIndex();
-    m_settings->beginGroup(ui->tab_setting->tabText(ui->tab_setting->currentIndex()));
+
     if (button == static_cast<QAbstractButton *>(ui->buttonBox->button(QDialogButtonBox::Save))) {
 
-        if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
-            handle_setting_tab_address(SAVE);
-        }
-        if (currentIndex == ui->tab_setting->indexOf(ui->tab_uds)) {
-            handle_setting_tab_uds(SAVE);
-        }
-        if (currentIndex == ui->tab_setting->indexOf(ui->tab_payload_item)) {
-            handle_setting_tab_payload_item(SAVE);
-        }
-        if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
-        }
+        handle_setting_tab_address(SAVE);
+        handle_setting_tab_uds(SAVE);
+        handle_setting_tab_payload_item(SAVE);
+
     } else if (button == static_cast<QAbstractButton *>(
                              ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))) {
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
@@ -188,7 +188,6 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
         }
     }
-    m_settings->endGroup();
 }
 
 void settings::on_tab_setting_currentChanged(int index) {
@@ -207,8 +206,7 @@ void settings::on_tab_setting_currentChanged(int index) {
     m_settings->endGroup();
 }
 
-void settings::on_pushButton_genkey_clicked()
-{
+void settings::on_pushButton_genkey_clicked() {
     QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
         this, tr("Open File"), QDir::currentPath(), QString("exe (*.exe);;ALL files (*)")));
 
@@ -218,4 +216,3 @@ void settings::on_pushButton_genkey_clicked()
         ui->comboBox_genkey->setCurrentIndex(ui->comboBox_genkey->findText(directory));
     }
 }
-
