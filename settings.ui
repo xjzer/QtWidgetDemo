@@ -219,10 +219,16 @@
        <item row="2" column="1">
         <widget class="QSpinBox" name="spinBox_dll_1">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly|Qt::ImhUppercaseOnly</set>
+         </property>
+         <property name="correctionMode">
+          <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
          </property>
          <property name="maximum">
           <number>255</number>
@@ -268,10 +274,16 @@
        <item row="3" column="1">
         <widget class="QSpinBox" name="spinBox_dll_2">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhUppercaseOnly</set>
+         </property>
+         <property name="correctionMode">
+          <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
          </property>
          <property name="maximum">
           <number>255</number>
@@ -317,10 +329,16 @@
        <item row="4" column="1">
         <widget class="QSpinBox" name="spinBox_dll_3">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly|Qt::ImhUppercaseOnly</set>
+         </property>
+         <property name="correctionMode">
+          <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
          </property>
          <property name="maximum">
           <number>255</number>
@@ -376,10 +394,16 @@
        <item row="5" column="1">
         <widget class="QSpinBox" name="spinBox_seedSize">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly|Qt::ImhUppercaseOnly</set>
+         </property>
+         <property name="correctionMode">
+          <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
          </property>
          <property name="maximum">
           <number>255</number>

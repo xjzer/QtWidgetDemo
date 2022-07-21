@@ -60,7 +60,9 @@ class MainWindow : public QMainWindow {
 
     void on_treeWidget_doipConsole_customContextMenuRequested(const QPoint &pos);
 
-  private:
+    void on_pushButton_custom_clicked();
+
+private:
     Ui::MainWindow *ui;
     Ui::settings *ui_set;
     settings *window_set;

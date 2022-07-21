@@ -36,8 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_action_delete = new QAction("delete");
     m_timer         = new QTimer(this);
 
-    ui->pushButton_uds_send->setText(tr("发送"));
-
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
         QHeaderView::Stretch); // treeWidget列宽自适应
 
@@ -53,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this->m_timer, SIGNAL(timeout()), this, SLOT(slot_timeout()));
     QObject::connect(ui->lineEdit_custom_uds, SIGNAL(returnPressed()), ui->pushButton_uds_send,
                      SIGNAL(clicked()), Qt::UniqueConnection); // todo  UniqueConnection
-
+    QObject::connect(ui->lineEdit_custom, SIGNAL(returnPressed()), ui->pushButton_custom,
+                     SIGNAL(clicked()), Qt::UniqueConnection); // todo  UniqueConnection
     ui_set = window_set->ui;
     m_QRegExp.setPattern("\\s");
     MainWindow::ms_log_browser = ui->textBrowser;
@@ -388,3 +387,28 @@ void MainWindow::on_treeWidget_doipConsole_customContextMenuRequested(const QPoi
     iPopMenu->addAction(m_action_delete); //往菜单内添加QAction
     iPopMenu->exec(QCursor::pos());       //弹出右键菜单，菜单位置为光标位置
 }
+
+void MainWindow::on_pushButton_custom_clicked()
+{
+
+    m_sendData = QByteArray::fromHex(ui->lineEdit_custom->text().toLocal8Bit());
+    if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
+        this->m_tcpSocket->isValid()) {
+
+        m_tcpSocket->write(m_sendData);
+
+        //设置不接受鼠标事件(todo bug)
+        ui->treeWidget_doipConsole->setDisabled(true);
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //鼠标转圈
+        qApp->processEvents();
+
+        //等待write
+        if (!m_tcpSocket->waitForBytesWritten(500)) {
+        }
+    } else {
+        this->m_timer->stop();
+        m_sendData.clear();
+        qDebug() << m_tcpSocket->state() << m_tcpSocket->isValid();
+    }
+}
+
