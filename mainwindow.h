@@ -50,11 +50,14 @@ class MainWindow : public QMainWindow {
     void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void slot_socket_bytesWritten(qint64 bytes);
+    void slot_errorOccurred(QAbstractSocket::SocketError socketError);
     void slot_socket_ready_read();
     void slot_action_settings_trigger();
     void slot_action_insert_triggered(bool checked);
     void slot_action_delete_triggered(bool checked);
     void slot_timeout(void);
+    void slot_timeout_100ms(void);
+    void slot_disconnected(void);
 
     void on_action_connect_triggered();
 
@@ -79,6 +82,7 @@ private:
     QAction *m_action_delete;
     QTreeWidgetItem *m_CurItem;
     QTimer *m_timer;
+    QTimer *m_timer_100ms;
     QByteArray m_Uds27Seed;
     QByteArray m_Uds27Key;
     quint32 m_seedSize;

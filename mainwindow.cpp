@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-20 01:10:04
+ * @LastEditTime : 2022-08-10 23:19:26
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_action_insert = new QAction("insert");
     m_action_delete = new QAction("delete");
     m_timer         = new QTimer(this);
+    m_timer_100ms   = new QTimer(this);
 
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
         QHeaderView::Stretch); // treeWidget列宽自适应
@@ -42,13 +43,19 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->action_settings, SIGNAL(triggered()), this,
                      SLOT(slot_action_settings_trigger()));
     QObject::connect(this->m_tcpSocket, SIGNAL(readyRead()), this, SLOT(slot_socket_ready_read()));
+    QObject::connect(this->m_tcpSocket, SIGNAL(disconnected()), this, SLOT(slot_disconnected()));
     QObject::connect(this->m_tcpSocket, SIGNAL(bytesWritten(qint64)), this,
                      SLOT(slot_socket_bytesWritten(qint64)));
+
+    QObject::connect(this->m_tcpSocket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)), this,
+                     SLOT(slot_errorOccurred(QAbstractSocket::SocketError)));
+
     QObject::connect(this->m_action_insert, SIGNAL(triggered(bool)), this,
                      SLOT(slot_action_insert_triggered(bool)));
     QObject::connect(this->m_action_delete, SIGNAL(triggered(bool)), this,
                      SLOT(slot_action_delete_triggered(bool)));
     QObject::connect(this->m_timer, SIGNAL(timeout()), this, SLOT(slot_timeout()));
+    QObject::connect(this->m_timer_100ms, SIGNAL(timeout()), this, SLOT(slot_timeout_100ms()));
     QObject::connect(ui->lineEdit_custom_uds, SIGNAL(returnPressed()), ui->pushButton_uds_send,
                      SIGNAL(clicked()), Qt::UniqueConnection); // todo  UniqueConnection
     QObject::connect(ui->lineEdit_custom, SIGNAL(returnPressed()), ui->pushButton_custom,
@@ -63,6 +70,13 @@ MainWindow::MainWindow(QWidget *parent)
     // MDI
     ui->mdiArea->setViewMode(QMdiArea::TabbedView);
     ui->mdiArea->setActiveSubWindow(ui->mdiArea->subWindowList().front());
+
+    //打开timer
+    m_timer_100ms->start(100);
+
+    //
+    ui->treeWidget_doipConsole->header()->setSectionResizeMode(QHeaderView::Interactive);
+    ui->treeWidget_doipConsole->setColumnWidth(0, 300);
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -192,6 +206,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
 
         //等待write
         if (!m_tcpSocket->waitForBytesWritten(500)) {
+            qDebug()<<"write error";
         }
     } else {
         this->m_timer->stop();
@@ -221,6 +236,17 @@ void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
 
     ui->treeWidget_doipConsole->setEnabled(true);
     QApplication::restoreOverrideCursor();
+}
+
+void MainWindow::slot_errorOccurred(QAbstractSocket::SocketError socketError) {
+    qDebug() << "ERRNO =" << socketError;
+    switch (socketError) {
+    default:
+        QMessageBox::information(
+            this, tr("error"),
+            tr("ERRNO(%1) : ").arg(m_tcpSocket->error())+(m_tcpSocket->errorString().toLocal8Bit()));
+        break;
+    }
 }
 
 void MainWindow::slot_socket_ready_read() {
@@ -328,6 +354,38 @@ void MainWindow::slot_timeout() {
     }
 }
 
+void MainWindow::slot_timeout_100ms() {
+    switch (m_tcpSocket->state()) {
+    case QAbstractSocket::UnconnectedState:
+        ui->action_connect->setText(tr("连接"));
+        break;
+    case QAbstractSocket::HostLookupState:
+        ui->action_connect->setText(tr("HostLookupState"));
+        break;
+    case QAbstractSocket::ConnectingState:
+        ui->action_connect->setText(tr("连接中"));
+        break;
+    case QAbstractSocket::ConnectedState:
+        ui->action_connect->setText(tr("断开连接"));
+        break;
+    case QAbstractSocket::BoundState:
+        ui->action_connect->setText(tr("BoundState"));
+        break;
+    case QAbstractSocket::ListeningState:
+        ui->action_connect->setText(tr("断开连接"));
+        break;
+    case QAbstractSocket::ClosingState:
+        ui->action_connect->setText(tr("连接"));
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::slot_disconnected() {
+    ui->action_connect->setText(tr("连接"));
+}
+
 void MainWindow::on_action_connect_triggered() {
 
     ui->textBrowser->clear();
@@ -388,9 +446,7 @@ void MainWindow::on_treeWidget_doipConsole_customContextMenuRequested(const QPoi
     iPopMenu->exec(QCursor::pos());       //弹出右键菜单，菜单位置为光标位置
 }
 
-void MainWindow::on_pushButton_custom_clicked()
-{
-
+void MainWindow::on_pushButton_custom_clicked() {
     m_sendData = QByteArray::fromHex(ui->lineEdit_custom->text().toLocal8Bit());
     if (this->m_tcpSocket->state() == QAbstractSocket::ConnectedState &&
         this->m_tcpSocket->isValid()) {
@@ -411,4 +467,3 @@ void MainWindow::on_pushButton_custom_clicked()
         qDebug() << m_tcpSocket->state() << m_tcpSocket->isValid();
     }
 }
-

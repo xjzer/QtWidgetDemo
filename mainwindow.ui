@@ -54,12 +54,33 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>350</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::DefaultContextMenu</enum>
           </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
+          <attribute name="headerVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="headerCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="headerShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>Payload</string>
@@ -70,6 +91,11 @@
             <string>Data</string>
            </property>
           </column>
+          <item>
+           <property name="text">
+            <string>0005 Routing activation request</string>
+           </property>
+          </item>
           <item>
            <property name="text">
             <string>8001 Diagnostic message</string>
@@ -93,51 +119,6 @@
               <string>10 03</string>
              </property>
             </item>
-           </item>
-           <item>
-            <property name="text">
-             <string>19</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>22</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>22 F1 95</string>
-             </property>
-            </item>
-           </item>
-           <item>
-            <property name="text">
-             <string>2E</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>31</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>10</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>14</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>14 FF FF FF</string>
-             </property>
-            </item>
-           </item>
-           <item>
-            <property name="text">
-             <string>85</string>
-            </property>
            </item>
            <item>
             <property name="text">
@@ -176,6 +157,51 @@
            </item>
            <item>
             <property name="text">
+             <string>22</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>22 F1 95</string>
+             </property>
+            </item>
+           </item>
+           <item>
+            <property name="text">
+             <string>31</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>19</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2E</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>10</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>14</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>14 FF FF FF</string>
+             </property>
+            </item>
+           </item>
+           <item>
+            <property name="text">
+             <string>85</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>38</string>
             </property>
            </item>
@@ -205,17 +231,18 @@
             <string>8002 Diagnostic message positive acknowledgement</string>
            </property>
           </item>
-          <item>
-           <property name="text">
-            <string>0005 Routing activation request</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QTextBrowser" name="textBrowser">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <family>Cascadia Mono SemiLight</family>
