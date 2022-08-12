@@ -112,7 +112,6 @@ void MainWindow::on_pushButton_uds_send_clicked() {
 }
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
-
     bool ok;
 
     DoIPProtocol iDoip;
@@ -198,20 +197,20 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         iDoip.mHeader.mLength = m_sendData.size();
         iHeaderStream << iDoip.mHeader.mLength;
         m_tcpSocket->write(m_sendHeader + m_sendData);
-
         //设置不接受鼠标事件(todo bug)
         ui->treeWidget_doipConsole->setDisabled(true);
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //鼠标转圈
-        qApp->processEvents();
 
         //等待write
         if (!m_tcpSocket->waitForBytesWritten(500)) {
-            qDebug()<<"write error";
+            qInfo().noquote() <<"REQ" <<"write error" << m_sendHeader.toHex(' ').toUpper() << "|"
+                              << m_sendData.toHex(' ').toUpper();
         }
     } else {
         this->m_timer->stop();
         m_sendHeader.clear();
         m_sendData.clear();
+        qDebug() << "on_treeWidget_doipConsole_itemDoubleClicked clear";
         qDebug() << m_tcpSocket->state() << m_tcpSocket->isValid();
     }
 }
@@ -227,7 +226,6 @@ void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
         qInfo().noquote() << "REQ" << m_sendHeader.toHex(' ').toUpper() << "|"
                           << m_sendData.toHex(' ').toUpper();
     }
-
     m_sendHeader.clear();
     m_sendData.clear();
     if (!m_tcpSocket->waitForReadyRead(3000)) {
@@ -347,7 +345,8 @@ void MainWindow::slot_timeout() {
         ++it;
     }
 
-    if (ui_set->checkBox_uds_3e->isChecked()) {                     //如果设置3E自动触发
+    if (ui_set->checkBox_uds_3e->isChecked()) {
+        //如果设置3E自动触发
         emit ui->treeWidget_doipConsole->itemDoubleClicked(*it, 0); //发送信号，类似双击3E 80
     } else {
         m_timer->stop();
