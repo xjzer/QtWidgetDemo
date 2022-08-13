@@ -34,7 +34,7 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     handle_setting_tab_payload_item(LOAD);
 
     for (qint32 i = ui->tab_setting->count() - 1; i >= 0; i--) {
-        on_tab_setting_currentChanged(i); //第一次运行时，自动将ini中的配置加载到setting窗口
+        tab_setting_load(i); //第一次运行时，自动将ini中的配置加载到setting窗口
     }
 }
 
@@ -233,7 +233,8 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
     }
 }
 
-void settings::on_tab_setting_currentChanged(int index) {
+void settings::tab_setting_load(int index) {
+    qDebug()<<"123";
     if (index == ui->tab_setting->indexOf(ui->tab_address)) {
         handle_setting_tab_address(LOAD);
     }

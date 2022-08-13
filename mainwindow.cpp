@@ -308,7 +308,7 @@ void MainWindow::slot_socket_ready_read() {
 
 void MainWindow::slot_action_settings_trigger(void) {
     this->window_set->show();
-    this->window_set->on_tab_setting_currentChanged(this->ui_set->tab_setting->currentIndex());
+    this->window_set->tab_setting_load(this->ui_set->tab_setting->currentIndex());
 }
 
 void MainWindow::slot_action_insert_triggered(bool checked) {

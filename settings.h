@@ -43,7 +43,6 @@ class settings : public QDialog {
 
     void on_buttonBox_clicked(QAbstractButton *button);
 
-    void on_tab_setting_currentChanged(int index);
 
     void on_pushButton_genkey_clicked();
 
@@ -56,6 +55,7 @@ private:
     void restore_default_tab_address(void);
     void restore_default_tab_uds(void);
     void restore_default_tab_payload_item(void);
+    void tab_setting_load(int index);
 
     void settings_handle(SettingsHandle handle, QLabel *label, QLineEdit *line);
     void settings_handle(SettingsHandle handle, QLabel *label, QComboBox *comboBox);
