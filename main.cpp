@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-17 00:40:43
+ * @LastEditTime : 2024-04-17 18:06:23
  */
 #include "mainwindow.h"
 #include <QApplication>
@@ -75,12 +75,18 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     if(MainWindow::ms_log_browser != nullptr){
         auto iPreColor = MainWindow::ms_log_browser->textColor();
         if(text.contains("REQ", Qt::CaseSensitive)){
-            MainWindow::ms_log_browser->setTextColor(QColor("Green"));
+            MainWindow::ms_log_browser->setTextColor(QColor("purple"));
         }else if(text.contains("RES", Qt::CaseSensitive)){
-            MainWindow::ms_log_browser->setTextColor(QColor("Purple"));
+            MainWindow::ms_log_browser->setTextColor(QColor("royalblue"));
+        }else if(text.contains("FAIL", Qt::CaseSensitive)){
+            MainWindow::ms_log_browser->setTextColor("red");
+        }else if(text.contains("SUCCESS", Qt::CaseSensitive)){
+            MainWindow::ms_log_browser->setTextColor("green");
         }
+
+        //        color0, color1, black, white, darkGray, gray, lightGray, red, green, blue, cyan, magenta, yellow, darkRed, darkGreen, darkBlue, darkCyan, darkMagenta, darkYellow, transparent
         MainWindow::ms_log_browser->append(text);
-        MainWindow::ms_log_browser->setTextColor(iPreColor);
+        MainWindow::ms_log_browser->setTextColor("black");
     }else{
         log << Qt::endl;
         fprintf(fp, "%s",

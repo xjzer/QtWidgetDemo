@@ -5,16 +5,19 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-20 00:24:53
+ * @LastEditTime : 2024-04-17 23:07:46
  */
 #include "settings.h"
 #include "ui_settings.h"
 #include <QDir>
 #include <QFileDialog>
 #include <QSettings>
+#include <QMessageBox>
+#include <QDesktopServices>
 
 settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     ui->setupUi(this);
+    qDebug() << "settings";
     QCoreApplication::setOrganizationName("XJZER");
     QCoreApplication::setOrganizationDomain("xjzer.com");
     QCoreApplication::setApplicationName("AutoDoIP");
@@ -45,7 +48,7 @@ settings::~settings() {
 static void clicked_pushButton_select_file(QWidget *parent, QComboBox *comboBox,
                                            const QString &filter = QString()) {
     QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
-        parent, QObject::tr("Open File"), QDir::currentPath(), filter));
+                                                     parent, QObject::tr("Open File"), QDir::currentPath(), filter));
     if (!directory.isEmpty()) {
         if (comboBox->findText(directory) == -1)
             comboBox->addItem(directory);
@@ -200,7 +203,14 @@ void settings::handle_setting_tab_uds(SettingsHandle handle) {
 
 void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
     m_settings->beginGroup(
-        ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_payload_item)));
+                ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_Autotest)));
+    settings_handle(handle, ui->label_autotest_file, ui->comboBox_autotest_file);
+    m_settings->endGroup();
+}
+
+void settings::handle_setting_tab_autotest_item(SettingsHandle handle) {
+    m_settings->beginGroup(
+                ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_payload_item)));
     settings_handle(handle, ui->label_version, ui->comboBox_version);
     settings_handle(handle, ui->label_activation_type, ui->comboBox_activation_type);
     settings_handle(handle, ui->label_reserved_iso, ui->lineEdit_reserved_iso);
@@ -218,7 +228,7 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
         handle_setting_tab_payload_item(SAVE);
 
     } else if (button == static_cast<QAbstractButton *>(
-                             ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))) {
+                   ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))) {
         if (currentIndex == ui->tab_setting->indexOf(ui->tab_address)) {
             restore_default_tab_address();
         }
@@ -234,7 +244,7 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
 }
 
 void settings::tab_setting_load(int index) {
-    qDebug()<<"123";
+    qDebug() << "tab_setting_load index" << index;
     if (index == ui->tab_setting->indexOf(ui->tab_address)) {
         handle_setting_tab_address(LOAD);
     }
@@ -244,13 +254,14 @@ void settings::tab_setting_load(int index) {
     if (index == ui->tab_setting->indexOf(ui->tab_payload_item)) {
         handle_setting_tab_payload_item(LOAD);
     }
-    if (index == ui->tab_setting->indexOf(ui->tab_address)) {
+    if (index == ui->tab_setting->indexOf(ui->tab_Autotest)) {
+        handle_setting_tab_autotest_item(LOAD);
     }
 }
 
 void settings::on_pushButton_genkey_clicked() {
     QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
-        this, tr("Open File"), QDir::currentPath(), QString("exe (*.exe);;ALL files (*)")));
+                                                     this, tr("Open File"), QDir::currentPath(), QString("exe (*.exe);;ALL files (*)")));
 
     if (!directory.isEmpty()) {
         if (ui->comboBox_genkey->findText(directory) == -1)
@@ -258,3 +269,90 @@ void settings::on_pushButton_genkey_clicked() {
         ui->comboBox_genkey->setCurrentIndex(ui->comboBox_genkey->findText(directory));
     }
 }
+
+void settings::on_pushButton_autotest_file_clicked()
+{
+    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(
+                                                     this, tr("Open File"), QDir::currentPath(), QString("ini (*.ini);;ALL files (*)")));
+
+    if (!directory.isEmpty()) {
+        if (ui->comboBox_autotest_file->findText(directory) == -1)
+            ui->comboBox_autotest_file->addItem(directory);
+        ui->comboBox_autotest_file->setCurrentIndex(ui->comboBox_autotest_file->findText(directory));
+    }
+}
+
+
+void settings::on_pushButton_create_test_ini_clicked()
+{
+    QString directory = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), QString("ini (*.ini);;ALL files (*)")));
+    qDebug() << "autotestIniFile" << directory;
+    if (!directory.isEmpty()) {
+        if (ui->comboBox_autotest_file->findText(directory) == -1)
+            ui->comboBox_autotest_file->addItem(directory);
+        ui->comboBox_autotest_file->setCurrentIndex(ui->comboBox_autotest_file->findText(directory));
+    }
+    QSettings *autotestIni = new QSettings(directory, QSettings::IniFormat);
+    autotestIni->clear();
+    autotestIni->setValue("001/Req", "22 03 03");
+    autotestIni->setValue("001/Resp", "62 03 03 30 32 30 32 30 33");
+    autotestIni->setValue("001/delayTime", "100");
+    autotestIni->setValue("001/isTest", "true");
+    autotestIni->setValue("001/isCheckResp", "true");
+    autotestIni->setValue("001/isWhole", "true");
+
+    autotestIni->setValue("002/Req", "10 03");
+    autotestIni->setValue("002/Resp", "50 03");
+    autotestIni->setValue("002/delayTime", "100");
+    autotestIni->setValue("002/isTest", "true");
+    autotestIni->setValue("002/isCheckResp", "true");
+    autotestIni->setValue("002/isWhole", "false");
+
+    autotestIni->setValue("003/Req", "27 01");
+    autotestIni->setValue("003/Resp", "67 01");
+    autotestIni->setValue("003/delayTime", "100");
+    autotestIni->setValue("003/isTest", "true");
+    autotestIni->setValue("003/isCheckResp", "true");
+    autotestIni->setValue("003/isWhole", "false");
+
+    autotestIni->setValue("004/Req", "27 02");
+    autotestIni->setValue("004/Resp", "67 02");
+    autotestIni->setValue("004/delayTime", "100");
+    autotestIni->setValue("004/isTest", "true");
+    autotestIni->setValue("004/isCheckResp", "true");
+    autotestIni->setValue("004/isWhole", "true");
+
+    autotestIni->setValue("005/Req", "11 01");
+    autotestIni->setValue("005/Resp", "51 01");
+    autotestIni->setValue("005/delayTime", "100");
+    autotestIni->setValue("005/isTest", "true");
+    autotestIni->setValue("005/isCheckResp", "true");
+    autotestIni->setValue("005/isWhole", "true");
+
+    autotestIni->setValue("006Reconnect/delayTime", "35000");
+    
+    autotestIni->setValue("007/Req", "22 03 03");
+    autotestIni->setValue("007/Resp", "62 03 03 30 32 30 32 30 33");
+    autotestIni->setValue("007/delayTime", "100");
+    autotestIni->setValue("007/isTest", "true");
+    autotestIni->setValue("007/isCheckResp", "true");
+    autotestIni->setValue("007/isWhole", "true");
+
+}
+
+
+void settings::on_pushButton_create_edit_ini_clicked()
+{
+    QString filePath = ui->comboBox_autotest_file->currentText();
+    QFileInfo directory(filePath);
+
+    //检测ini文件是否存在并打开
+    if (directory.isFile()) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
+    }else{
+        QMessageBox::information(NULL, "提示", tr("Autotest.ini 文件路径错误 : %1").arg(directory.filePath()), QMessageBox::Ok,
+                                 QMessageBox::Ok);
+    }
+    return;
+}
+

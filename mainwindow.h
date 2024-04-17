@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-07-18 00:01:37
+ * @LastEditTime : 2024-04-17 21:31:12
  */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -30,9 +30,10 @@ class MainWindow : public QMainWindow {
     enum PayloadTypeValue : quint16 {
         ROUTING_ACTIVATION_REQ  = 0x0005,
         ROUTING_ACTIVATION_RESP = 0x0006,
-        UDS_MSG                 = 0X8001,
-        UDS_ACK                 = 0X8002,
-        UDS_NACK                = 0X8003,
+        UDS_MSG                 = 0x8001,
+        UDS_ACK                 = 0x8002,
+        UDS_NACK                = 0x8003,
+        CUSTOM_AUTOTEST         = 0xFF01,
     };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -44,7 +45,6 @@ class MainWindow : public QMainWindow {
                                 const QString &msg);
     static QTextBrowser *ms_log_browser;
   private slots:
-    void on_pushButton_clicked();
     void on_pushButton_uds_send_clicked();
 
     void on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow {
     void slot_action_settings_trigger();
     void slot_action_insert_triggered(bool checked);
     void slot_action_delete_triggered(bool checked);
-    void slot_timeout(void);
+    void slot_3E_timeout(void);
     void slot_timeout_100ms(void);
     void slot_disconnected(void);
     void slot_socket_readChannelFinished(void);
@@ -66,7 +66,14 @@ class MainWindow : public QMainWindow {
 
     void on_pushButton_custom_clicked();
 
+    void on_pushButton_clearlog_clicked();
+
+    void on_actionAbout_DoIPConsole_triggered();
+
 private:
+
+    void on_autotest_clicked();
+    bool send_uds_message(const QByteArray reqData, const QByteArray respData, bool isWhole);
     Ui::MainWindow *ui;
     Ui::settings *ui_set;
     settings *window_set;
@@ -79,15 +86,20 @@ private:
     QByteArray m_sendData;
     QByteArray m_recvHeader;
     QByteArray m_recvData;
+    QByteArray m_autotestRespCheckData;
     QAction *m_action_insert;
     QAction *m_action_delete;
     QTreeWidgetItem *m_CurItem;
-    QTimer *m_timer;
+    QTimer *m_3E_timer;
     QTimer *m_timer_100ms;
+    QTimer *m_reconnect_timer;
     QByteArray m_Uds27Seed;
     QByteArray m_Uds27Key;
     quint32 m_seedSize;
     const int m_MagicNumButtonClicked = 0xFEFE;
+    quint32 m_autotest_group_index;
+    bool m_autotestIsWhole;
+    bool m_autotestIsEnd = true;
 };
 
 #endif // MAINWINDOW_H

@@ -33,7 +33,12 @@ set(PROJECT_SOURCES
         type.h
         ${TS_FILES}
 )
-
+file(GLOB PROJECT_SOURCES
+    "*.cpp"
+    "*.h"
+    "*.ui"
+    ${TS_FILES}
+)
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(xjzer
         MANUAL_FINALIZATION

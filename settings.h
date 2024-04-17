@@ -50,6 +50,12 @@ class settings : public QDialog {
 
     void on_pushButton_dll_3_clicked();
 
+    void on_pushButton_autotest_file_clicked();
+
+    void on_pushButton_create_test_ini_clicked();
+
+    void on_pushButton_create_edit_ini_clicked();
+
 private:
     void default_setting(void);
     void restore_default_tab_address(void);
@@ -66,6 +72,7 @@ private:
     void handle_setting_tab_address(SettingsHandle handle);
     void handle_setting_tab_uds(SettingsHandle handle);
     void handle_setting_tab_payload_item(SettingsHandle handle);
+    void handle_setting_tab_autotest_item(SettingsHandle handle);
 
     Ui::settings *ui;
     QSettings *m_settings;

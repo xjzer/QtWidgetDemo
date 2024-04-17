@@ -122,6 +122,19 @@
            </item>
            <item>
             <property name="text">
+             <string>11</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>11 01</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </item>
+           <item>
+            <property name="text">
              <string>27</string>
             </property>
             <item>
@@ -263,15 +276,18 @@
              <string>3E 80</string>
             </property>
            </item>
-           <item>
-            <property name="text">
-             <string>autotest</string>
-            </property>
-           </item>
           </item>
           <item>
            <property name="text">
             <string>8002 Diagnostic message positive acknowledgement</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>FF01 Autotest</string>
+           </property>
+           <property name="text">
+            <string/>
            </property>
           </item>
          </widget>
@@ -304,9 +320,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_clearlog">
             <property name="text">
-             <string>PushButton</string>
+             <string>clear</string>
             </property>
            </widget>
           </item>
@@ -401,6 +417,7 @@
     </property>
     <addaction name="action_ota"/>
     <addaction name="action_connect"/>
+    <addaction name="action_Autotest"/>
    </widget>
    <widget class="QMenu" name="menu_debug">
     <property name="title">
@@ -415,10 +432,17 @@
     <addaction name="action_cascade"/>
     <addaction name="action_ViewMode"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>关于</string>
+    </property>
+    <addaction name="actionAbout_DoIPConsole"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_debug"/>
    <addaction name="menu_run"/>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -477,6 +501,16 @@
   <action name="action_cascade">
    <property name="text">
     <string>级联</string>
+   </property>
+  </action>
+  <action name="action_Autotest">
+   <property name="text">
+    <string>Autotest</string>
+   </property>
+  </action>
+  <action name="actionAbout_DoIPConsole">
+   <property name="text">
+    <string>About DoIPConsole</string>
    </property>
   </action>
  </widget>
