@@ -342,6 +342,12 @@ void MainWindow::slot_socket_ready_read() {
                     m_autotestIsEnd = true;
                 }
             }
+
+            //如果路由激活成功
+            if(m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == ROUTING_ACTIVATION_RESP && m_recvData.at(4) ==0x10){
+                QThread::msleep(1000);
+                emit ui->treeWidget_doipConsole->itemDoubleClicked(ui->treeWidget_doipConsole->findItems("FF01", Qt::MatchContains).constFirst(), m_MagicNumButtonClicked);
+            }
         }
         m_recvHeader.clear();
         m_recvData.clear();
@@ -608,13 +614,10 @@ void MainWindow::on_autotest_clicked()
             ui->action_connect->trigger(); //此处会等待on_action_connect_triggered执行完毕才返回
             QThread::msleep(500);
             if(ui->action_connect->text() == tr("断开连接")){
+                m_autotestIsEnd = false;
+                                //由于重新点击连接后，会认为测试结束，所以在路由激活之前，将测试结束标志位恢复，表示继续测试。
                 emit ui->treeWidget_doipConsole->itemDoubleClicked(ui->treeWidget_doipConsole->findItems("0005", Qt::MatchContains).constFirst(), m_MagicNumButtonClicked);
             }
-            qDebug() << "action_connect trigger msleep";
-            QThread::msleep(1000);
-
-            m_autotestIsEnd = false;  //由于重新点击连接后，会认为测试结束，所以在点击FF01之前，将测试结束标志位恢复，表示继续测试。
-            emit ui->treeWidget_doipConsole->itemDoubleClicked(ui->treeWidget_doipConsole->findItems("FF01", Qt::MatchContains).constFirst(), m_MagicNumButtonClicked);
 
             qDebug() << "action_connect trigger end ";
         });
