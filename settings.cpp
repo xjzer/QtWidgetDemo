@@ -5,7 +5,7 @@
  * @Date         : 2022-07-11 23:48:34
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2024-04-17 23:07:46
+ * @LastEditTime : 2024-04-18 01:34:17
  */
 #include "settings.h"
 #include "ui_settings.h"
@@ -35,6 +35,7 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     handle_setting_tab_address(LOAD);
     handle_setting_tab_uds(LOAD);
     handle_setting_tab_payload_item(LOAD);
+    handle_setting_tab_autotest_item(LOAD);
 
     for (qint32 i = ui->tab_setting->count() - 1; i >= 0; i--) {
         tab_setting_load(i); //第一次运行时，自动将ini中的配置加载到setting窗口
@@ -203,18 +204,18 @@ void settings::handle_setting_tab_uds(SettingsHandle handle) {
 
 void settings::handle_setting_tab_payload_item(SettingsHandle handle) {
     m_settings->beginGroup(
-                ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_Autotest)));
-    settings_handle(handle, ui->label_autotest_file, ui->comboBox_autotest_file);
-    m_settings->endGroup();
-}
-
-void settings::handle_setting_tab_autotest_item(SettingsHandle handle) {
-    m_settings->beginGroup(
                 ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_payload_item)));
     settings_handle(handle, ui->label_version, ui->comboBox_version);
     settings_handle(handle, ui->label_activation_type, ui->comboBox_activation_type);
     settings_handle(handle, ui->label_reserved_iso, ui->lineEdit_reserved_iso);
     settings_handle(handle, ui->checkBox_reserved_oem, ui->lineEdit_reserved_oem);
+    m_settings->endGroup();
+}
+
+void settings::handle_setting_tab_autotest_item(SettingsHandle handle) {
+    m_settings->beginGroup(
+                ui->tab_setting->tabText(ui->tab_setting->indexOf(ui->tab_Autotest)));
+    settings_handle(handle, ui->label_autotest_file, ui->comboBox_autotest_file);
     m_settings->endGroup();
 }
 
@@ -226,6 +227,7 @@ void settings::on_buttonBox_clicked(QAbstractButton *button) {
         handle_setting_tab_address(SAVE);
         handle_setting_tab_uds(SAVE);
         handle_setting_tab_payload_item(SAVE);
+        handle_setting_tab_autotest_item(SAVE);
 
     } else if (button == static_cast<QAbstractButton *>(
                    ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))) {

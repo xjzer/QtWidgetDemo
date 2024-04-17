@@ -16,6 +16,8 @@
 #include <QTcpSocket>
 #include <QTextBrowser>
 #include <QTreeWidgetItem>
+#include <QSemaphore>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -34,6 +36,7 @@ class MainWindow : public QMainWindow {
         UDS_ACK                 = 0x8002,
         UDS_NACK                = 0x8003,
         CUSTOM_AUTOTEST         = 0xFF01,
+        CUSTOM_TEST         = 0x0000,
     };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -100,6 +103,8 @@ private:
     quint32 m_autotest_group_index;
     bool m_autotestIsWhole;
     bool m_autotestIsEnd = true;
+
+    QSemaphore *m_semaphore_autotestClick;
 };
 
 #endif // MAINWINDOW_H

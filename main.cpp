@@ -72,7 +72,9 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #elif
 #error "No macro definition found"
 #endif
+
     if(MainWindow::ms_log_browser != nullptr){
+        MainWindow::ms_log_browser->setTextColor("black");
         auto iPreColor = MainWindow::ms_log_browser->textColor();
         if(text.contains("REQ", Qt::CaseSensitive)){
             MainWindow::ms_log_browser->setTextColor(QColor("purple"));
@@ -86,7 +88,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
         //        color0, color1, black, white, darkGray, gray, lightGray, red, green, blue, cyan, magenta, yellow, darkRed, darkGreen, darkBlue, darkCyan, darkMagenta, darkYellow, transparent
         MainWindow::ms_log_browser->append(text);
-        MainWindow::ms_log_browser->setTextColor("black");
     }else{
         log << Qt::endl;
         fprintf(fp, "%s",

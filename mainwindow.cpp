@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2024-04-17 21:51:21
+ * @LastEditTime : 2024-04-18 02:43:18
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -33,17 +33,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), window_set(new settings(this)) {
     ui->setupUi(this);
 
-
-
-
-
-
-
-
-
-
-
-
     this->setWindowTitle("DoIP Console 20240417");
 
     m_tcpSocket     = new QTcpSocket(this);
@@ -52,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_3E_timer         = new QTimer(this);
     m_timer_100ms   = new QTimer(this);
     m_reconnect_timer   = new QTimer(this);
+    m_semaphore_autotestClick = new QSemaphore(0);
 
     ui->treeWidget_doipConsole->header()->setSectionResizeMode(
                 QHeaderView::Stretch); // treeWidget列宽自适应
@@ -191,6 +181,8 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         on_autotest_clicked();
         return;
         break;
+    case CUSTOM_TEST:
+        return;
     default:
         qDebug() << "itemDoubleClicked" << item->text(0).toStdU16String();
         break;
@@ -220,10 +212,10 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //鼠标转圈
 
         //等待write
-        if (!m_tcpSocket->waitForBytesWritten(500)) {
-            qInfo().noquote() <<"REQ" <<"write error" << m_sendHeader.toHex(' ').toUpper() << "|"
-                             << m_sendData.toHex(' ').toUpper();
-        }
+        // if (!m_tcpSocket->waitForBytesWritten(500)) {
+        //     qInfo().noquote() <<"REQ" <<"write error" << m_sendHeader.toHex(' ').toUpper() << "|"
+        //                      << m_sendData.toHex(' ').toUpper();
+        // }
     } else {
         this->m_3E_timer->stop();
         m_sendHeader.clear();
@@ -252,12 +244,13 @@ void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
     }
     m_sendHeader.clear();
     m_sendData.clear();
-    if (!m_tcpSocket->waitForReadyRead(3000)) {
-        qDebug() << "timeout_ready_read";
-    }
+//    if (!m_tcpSocket->waitForReadyRead(3000)) {
+//        qDebug() << "timeout_ready_read";
+//    }
 
-    ui->treeWidget_doipConsole->setEnabled(true);
-    QApplication::restoreOverrideCursor();
+      ui->treeWidget_doipConsole->setEnabled(true);
+//    QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor)); //默认鼠标
+      QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::slot_errorOccurred(QAbstractSocket::SocketError socketError) {
@@ -339,6 +332,9 @@ void MainWindow::slot_socket_ready_read() {
 
             if(m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG && m_recvData.at(4) != 0x7E && !(m_recvData.at(4) == 0x7F && m_recvData.at(6) == 0x78)){
                 if((m_autotestIsWhole && m_recvData.mid(4) == m_autotestRespCheckData) || (!m_autotestIsWhole && m_recvData.mid(4).contains(m_autotestRespCheckData))){
+                    qDebug() << "m_semaphore_autotestClick->acquire() start available =" << m_semaphore_autotestClick->available();
+                    m_semaphore_autotestClick->acquire();
+                    qDebug() << "m_semaphore_autotestClick->acquire() end available =" << m_semaphore_autotestClick->available();
                     emit ui->treeWidget_doipConsole->itemDoubleClicked(ui->treeWidget_doipConsole->findItems("FF01", Qt::MatchContains).constFirst(), m_MagicNumButtonClicked);
                 } else{
                     qWarning()<< "m_recvData =" << m_recvData.mid(4).toHex(' ').toUpper() << "m_autotestRespCheckData =" << m_autotestRespCheckData.toHex(' ').toUpper();
@@ -438,6 +434,8 @@ void MainWindow::slot_socket_readChannelFinished()
 void MainWindow::on_action_connect_triggered() {
     qDebug() << "on_action_connect_triggered";
     m_autotestIsEnd = true;
+    QApplication::restoreOverrideCursor();
+    ui->treeWidget_doipConsole->setEnabled(true);
     if (ui->action_connect->text() == tr("连接")) {
         ui->action_connect->setEnabled(false);
 
@@ -507,9 +505,9 @@ void MainWindow::on_pushButton_custom_clicked() {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //鼠标转圈
         qApp->processEvents();
 
-        //等待write
-        if (!m_tcpSocket->waitForBytesWritten(500)) {
-        }
+        // //等待write
+        // if (!m_tcpSocket->waitForBytesWritten(500)) {
+        // }
     } else {
         this->m_3E_timer->stop();
         m_sendData.clear();
@@ -519,8 +517,6 @@ void MainWindow::on_pushButton_custom_clicked() {
 
 void MainWindow::on_autotest_clicked()
 {
-
-
     m_autotestRespCheckData.clear();
 
     QString filePath = this->ui_set->comboBox_autotest_file->currentText();
@@ -552,10 +548,11 @@ void MainWindow::on_autotest_clicked()
 
     // 计算组的数量
     static int i = 0;
-    qDebug() << "on_autotest_clicked" << "i =" << i << " groups.size() ="<< groups.size();
+    qDebug() << "on_autotest_clicked" << "i =" << i << " groups.size() ="<< groups.size()<< " m_autotestIsEnd =" << m_autotestIsEnd;
 
     //如果测试结束, 则将索引归零，重新测试
     if(m_autotestIsEnd){
+
         i=0;
         m_autotestIsEnd = false;
     }
@@ -587,7 +584,6 @@ void MainWindow::on_autotest_clicked()
     uint32_t delayTime = autotest_setting.value("delayTime").toUInt();
     m_autotestIsWhole = autotest_setting.value("isWhole").toBool();
     qDebug() << "m_autotestIsWhole" << m_autotestIsWhole << "group" << group;
-
 
     if(group.contains("Reconnect")){
         qDebug()<< "Reconnect";
@@ -639,6 +635,10 @@ void MainWindow::on_autotest_clicked()
 
     i++;
     m_autotest_group_index = i;
+
+    m_semaphore_autotestClick->release();
+    qDebug() << "on_autotest_clicked end" << "i =" << i << " groups.size() ="<< groups.size()<< " m_autotestIsEnd =" << m_autotestIsEnd;
+    qDebug() << "m_semaphore_autotestClick->release() available = " <<m_semaphore_autotestClick->available();
 
 }
 
@@ -705,11 +705,11 @@ bool MainWindow::send_uds_message(const QByteArray reqData, const QByteArray res
         ui->treeWidget_doipConsole->setDisabled(true);
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); //鼠标转圈
 
-        //等待write
-        if (!m_tcpSocket->waitForBytesWritten(500)) {
-            qInfo().noquote() <<"REQ" <<"write error" << m_sendHeader.toHex(' ').toUpper() << "|"
-                             << m_sendData.toHex(' ').toUpper();
-        }
+        // //等待write
+        // if (!m_tcpSocket->waitForBytesWritten(500)) {
+        //     qInfo().noquote() <<"REQ" <<"write error" << m_sendHeader.toHex(' ').toUpper() << "|"
+        //                      << m_sendData.toHex(' ').toUpper();
+        // }
     } else {
         this->m_3E_timer->stop();
         m_sendHeader.clear();
