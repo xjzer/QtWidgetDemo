@@ -5,7 +5,7 @@
  * @Date         : 2022-07-03 14:32:16
  * @Email        : xjzer2020@163.com
  * @Others       : empty
- * @LastEditTime : 2022-08-10 23:19:26
+ * @LastEditTime : 2024-04-17 11:49:40
  */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this->m_tcpSocket, SIGNAL(disconnected()), this, SLOT(slot_disconnected()));
     QObject::connect(this->m_tcpSocket, SIGNAL(bytesWritten(qint64)), this,
                      SLOT(slot_socket_bytesWritten(qint64)));
+    QObject::connect(this->m_tcpSocket, SIGNAL(readChannelFinished()), this,
+                     SLOT(slot_socket_readChannelFinished()));
 
     QObject::connect(this->m_tcpSocket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)), this,
                      SLOT(slot_errorOccurred(QAbstractSocket::SocketError)));
@@ -112,6 +114,7 @@ void MainWindow::on_pushButton_uds_send_clicked() {
 }
 
 void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *item, int column) {
+
     bool ok;
 
     DoIPProtocol iDoip;
@@ -146,7 +149,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
     iHeaderStream << iDoip.mHeader.mVersion;
     iHeaderStream << iDoip.mHeader.mInverseVersion;
     iHeaderStream << iDoip.mHeader.mType;
-
+    qDebug() << "on_treeWidget_doipConsole_itemDoubleClicked" << iDoip.mHeader.mType;
     switch (iDoip.mHeader.mType) {
     case ROUTING_ACTIVATION_REQ:
         iDoip.mRoutingReq.mSource = iSourceAddress;
@@ -217,6 +220,7 @@ void MainWindow::on_treeWidget_doipConsole_itemDoubleClicked(QTreeWidgetItem *it
 
 void MainWindow::slot_socket_bytesWritten(qint64 bytes) {
     bool ok;
+    qDebug() << "slot_socket_bytesWritten = " << bytes;
 
     //不打印3E服务，可以设置为配置项
     if (m_sendHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
@@ -249,61 +253,65 @@ void MainWindow::slot_errorOccurred(QAbstractSocket::SocketError socketError) {
 
 void MainWindow::slot_socket_ready_read() {
     bool ok;
-    m_recvHeader     = m_tcpSocket->read(8);
-    auto iDataLength = m_recvHeader.toHex().last(8).toUInt(&ok, 16);
-    m_recvData       = m_tcpSocket->read(iDataLength);
+    while(!m_tcpSocket->atEnd()) {
+        m_recvHeader     = m_tcpSocket->read(8);
+        auto iDataLength = m_recvHeader.toHex().last(8).toUInt(&ok, 16);
+        m_recvData       = m_tcpSocket->read(iDataLength);
 
-    if ((m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) ==
+        //qDebug() << "slot_socket_ready_read iDataLength = "<< iDataLength << " atEnd = " << m_tcpSocket->atEnd() << " bytesAvailable = " << m_tcpSocket->bytesAvailable() ;
+
+        if ((m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) ==
              UDS_ACK && //不打印3E服务，可以设置为配置项
-         m_recvData.at(5) == 0x3E) ||
-        (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-         m_recvData.at(4) == 0x7E)) {
+             m_recvData.at(5) == 0x3E) ||
+                (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+                 m_recvData.at(4) == 0x7E)) {
 
-    } else {
-        qInfo().noquote() << "RES" << m_recvHeader.toHex(' ').toUpper() << "|"
-                          << m_recvData.toHex(' ').toUpper();
-    }
-
-    //    qDebug() <<"========" << m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16)
-    //    <<(quint32)m_recvData.at(4);
-
-    m_seedSize = ui_set->spinBox_seedSize->value();
-    if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-        m_recvData.at(4) == 0x50) { //判断收到的是否为：UDS消息 && 10服务的肯定响应
-        if (ui_set->checkBox_uds_3e->isChecked()) { //如果设置3E自动触发
-            m_timer->start(3000);
-        }
-    } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-               m_recvData.at(4) == 0x67 &&
-               m_recvData.size() ==
-                   6 + m_seedSize) //判断收到的是否为：UDS消息 && 27服务的响应 && 带有种子
-    {
-        m_Uds27Seed = m_recvData.last(4);
-        QStringList arguments;
-        if (m_recvData.at(5) == ui_set->spinBox_dll_1->value()) {
-            arguments << ui_set->comboBox_dll_1->currentText();
-        } else if (m_recvData.at(5) == ui_set->spinBox_dll_2->value()) {
-            arguments << ui_set->comboBox_dll_2->currentText();
-        } else if (m_recvData.at(5) == ui_set->spinBox_dll_3->value()) {
-            arguments << ui_set->comboBox_dll_3->currentText();
         } else {
-            QMessageBox::information(NULL, "提示", tr("未找到对应安全等级"), QMessageBox::Ok,
-                                     QMessageBox::Ok);
-            return;
+            qInfo().noquote() << "RES" << m_recvHeader.toHex(' ').toUpper() << "|"
+                              << m_recvData.toHex(' ').toUpper();
         }
-        QFileInfo gen_key_file(ui_set->comboBox_genkey->currentText());
-        if (!gen_key_file.isFile()) {
-            QMessageBox::information(NULL, "提示", tr("dll文件路径为空/错误"), QMessageBox::Ok,
-                                     QMessageBox::Ok);
-            return;
-        }
-        arguments << m_Uds27Seed.toHex();
-        // qDebug() << "exe = " << ui_set->comboBox_genkey->currentText() << "arg = " << arguments;
-        QProcess::execute(ui_set->comboBox_genkey->currentText(), arguments);
-    }
 
-    m_recvHeader.clear();
-    m_recvData.clear();
+           qDebug() <<"========" << m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) <<(quint32)m_recvData.at(4);
+
+        m_seedSize = ui_set->spinBox_seedSize->value();
+        if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+                m_recvData.at(4) == 0x50) { //判断收到的是否为：UDS消息 && 10服务的肯定响应
+            if (ui_set->checkBox_uds_3e->isChecked()) { //如果设置3E自动触发
+                m_timer->start(3000);
+            }
+        } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
+                   m_recvData.at(4) == 0x67 &&
+                   m_recvData.size() ==
+                   6 + m_seedSize) //判断收到的是否为：UDS消息 && 27服务的响应 && 带有种子
+        {
+            m_Uds27Seed = m_recvData.last(4);
+            QStringList arguments;
+            if (m_recvData.at(5) == ui_set->spinBox_dll_1->value()) {
+                arguments << ui_set->comboBox_dll_1->currentText();
+            } else if (m_recvData.at(5) == ui_set->spinBox_dll_2->value()) {
+                arguments << ui_set->comboBox_dll_2->currentText();
+            } else if (m_recvData.at(5) == ui_set->spinBox_dll_3->value()) {
+                arguments << ui_set->comboBox_dll_3->currentText();
+            } else {
+                QMessageBox::information(NULL, "提示", tr("未找到对应安全等级"), QMessageBox::Ok,
+                                         QMessageBox::Ok);
+                return;
+            }
+            QFileInfo gen_key_file(ui_set->comboBox_genkey->currentText());
+
+            if (!gen_key_file.isFile()) {
+                QMessageBox::information(NULL, "提示", tr("genkey.exe 文件路径错误 : %1").arg(gen_key_file.filePath()), QMessageBox::Ok,
+                                         QMessageBox::Ok);
+                return;
+            }
+            arguments << m_Uds27Seed.toHex();
+            // qDebug() << "exe = " << ui_set->comboBox_genkey->currentText() << "arg = " << arguments;
+            QProcess::execute(ui_set->comboBox_genkey->currentText(), arguments);
+        }
+
+        m_recvHeader.clear();
+        m_recvData.clear();
+    }
 }
 
 void MainWindow::slot_action_settings_trigger(void) {
@@ -383,6 +391,11 @@ void MainWindow::slot_timeout_100ms() {
 
 void MainWindow::slot_disconnected() {
     ui->action_connect->setText(tr("连接"));
+}
+
+void MainWindow::slot_socket_readChannelFinished()
+{
+    qDebug() << "slot_socket_readChannelFinished = " << m_tcpSocket->atEnd();
 }
 
 void MainWindow::on_action_connect_triggered() {

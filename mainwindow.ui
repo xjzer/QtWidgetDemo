@@ -126,6 +126,16 @@
             </property>
             <item>
              <property name="text">
+              <string>27 01</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 02</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>27 03</string>
              </property>
             </item>
@@ -142,6 +152,29 @@
             <item>
              <property name="text">
               <string>27 06</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 07</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 08</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 09</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>27 0A</string>
              </property>
             </item>
             <item>
@@ -174,15 +207,20 @@
             <property name="text">
              <string>19</string>
             </property>
+            <item>
+             <property name="text">
+              <string>19 02 0F</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>19 02 09</string>
+             </property>
+            </item>
            </item>
            <item>
             <property name="text">
              <string>2E</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>10</string>
             </property>
            </item>
            <item>
@@ -223,6 +261,11 @@
            <item>
             <property name="text">
              <string>3E 80</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>autotest</string>
             </property>
            </item>
           </item>

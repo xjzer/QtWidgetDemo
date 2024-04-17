@@ -18,6 +18,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 #add_definitions(-DQT_MESSAGELOGCONTEXT)
 add_definitions(-DKEYGENALGO_EXPORTS)
+add_definitions(-DQT_NO_DEBUG_OUTPUT)
 
 set(TS_FILES xjzer_zh_CN.ts)
 

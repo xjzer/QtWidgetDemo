@@ -58,6 +58,7 @@ class MainWindow : public QMainWindow {
     void slot_timeout(void);
     void slot_timeout_100ms(void);
     void slot_disconnected(void);
+    void slot_socket_readChannelFinished(void);
 
     void on_action_connect_triggered();
 
