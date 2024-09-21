@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), window_set(new settings(this)) {
     ui->setupUi(this);
 
-    this->setWindowTitle("DoIP Console 20240417");
+    this->setWindowTitle("DoIP Console 20240921");
 
     m_tcpSocket     = new QTcpSocket(this);
     m_action_insert = new QAction("insert");
@@ -288,30 +288,25 @@ void MainWindow::slot_socket_ready_read() {
                               << m_recvData.toHex(' ').toUpper();
         }
 
-        m_seedSize = ui_set->spinBox_seedSize->value();
         if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
                 m_recvData.at(4) == 0x50) { //判断收到的是否为：UDS消息 && 10服务的肯定响应
             if (ui_set->checkBox_uds_3e->isChecked()) { //如果设置3E自动触发
                 m_3E_timer->start(3000);
             }
         } else if (m_recvHeader.first(4).last(2).toHex().toUInt(&ok, 16) == UDS_MSG &&
-                   m_recvData.at(4) == 0x67 &&
-                   m_recvData.size() ==
-                   6 + m_seedSize) //判断收到的是否为：UDS消息 && 27服务的响应 && 带有种子
+                   m_recvData.at(4) == 0x67) //判断收到的是否为：UDS消息 && 27服务的响应
         {
-            m_Uds27Seed = m_recvData.last(4);
+            m_Uds27Seed = m_recvData.sliced(6);
             QStringList arguments;
-            if (m_recvData.at(5) == ui_set->spinBox_dll_1->value()) {
-                arguments << ui_set->comboBox_dll_1->currentText();
-            } else if (m_recvData.at(5) == ui_set->spinBox_dll_2->value()) {
-                arguments << ui_set->comboBox_dll_2->currentText();
-            } else if (m_recvData.at(5) == ui_set->spinBox_dll_3->value()) {
-                arguments << ui_set->comboBox_dll_3->currentText();
-            } else {
-                QMessageBox::information(NULL, "提示", tr("未找到对应安全等级"), QMessageBox::Ok,
-                                         QMessageBox::Ok);
-                return;
-            }
+            //argv[1] dll path
+            arguments << ui_set->comboBox_dll_1->currentText();
+
+            //argv[2] seed
+            arguments << m_Uds27Seed.toHex();
+
+            //argv[2] iSecurityLevel
+            arguments << QString::number(m_recvData.at(5),16);
+
             QFileInfo gen_key_file(ui_set->comboBox_genkey->currentText());
 
             if (!gen_key_file.isFile()) {
@@ -319,8 +314,15 @@ void MainWindow::slot_socket_ready_read() {
                                          QMessageBox::Ok);
                 return;
             }
-            arguments << m_Uds27Seed.toHex();
-            // qDebug() << "exe = " << ui_set->comboBox_genkey->currentText() << "arg = " << arguments;
+
+            QFileInfo dll_file(ui_set->comboBox_dll_1->currentText());
+            if (!dll_file.isFile()) {
+                QMessageBox::information(NULL, "提示", tr("dll 文件路径错误 : %1").arg(dll_file.filePath()), QMessageBox::Ok,
+                                         QMessageBox::Ok);
+                return;
+            }
+
+            qDebug() << "exe = " << ui_set->comboBox_genkey->currentText() << "arg = " << arguments;
             QProcess::execute(ui_set->comboBox_genkey->currentText(), arguments);
         }
 

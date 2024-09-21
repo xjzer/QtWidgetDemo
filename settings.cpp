@@ -32,10 +32,10 @@ settings::settings(QWidget *parent) : QDialog(parent), ui(new Ui::settings) {
     qDebug() << "format = " << m_settings->format();
     qDebug() << "scope = " << m_settings->scope();
 
-    handle_setting_tab_address(LOAD);
-    handle_setting_tab_uds(LOAD);
-    handle_setting_tab_payload_item(LOAD);
-    handle_setting_tab_autotest_item(LOAD);
+//    handle_setting_tab_address(LOAD);
+//    handle_setting_tab_uds(LOAD);
+//    handle_setting_tab_payload_item(LOAD);
+//    handle_setting_tab_autotest_item(LOAD);
 
     for (qint32 i = ui->tab_setting->count() - 1; i >= 0; i--) {
         tab_setting_load(i); //第一次运行时，自动将ini中的配置加载到setting窗口
@@ -65,14 +65,6 @@ void settings::on_pushButton_dll_clicked() {
     clicked_pushButton_select_file(this, ui->comboBox_dll_1, QString("Odx (*.dll);;ALL files (*)"));
 }
 
-void settings::on_pushButton_dll_2_clicked() {
-    clicked_pushButton_select_file(this, ui->comboBox_dll_2, QString("Odx (*.dll);;ALL files (*)"));
-}
-
-void settings::on_pushButton_dll_3_clicked() {
-    clicked_pushButton_select_file(this, ui->comboBox_dll_3, QString("Odx (*.dll);;ALL files (*)"));
-}
-
 void settings::restore_default_tab_address() {
     ui->lineEdit_tester->setText("0E80");
     ui->lineEdit_ip->setText("0.0.0.0");
@@ -83,7 +75,7 @@ void settings::restore_default_tab_address() {
 
 void settings::restore_default_tab_uds() {
     ui->checkBox_uds_3e->setChecked(true);
-    ui->spinBox_seedSize->setValue(4);
+    ui->comboBox_genkey->setCurrentText(".\\GenKey\\gen_key.exe");
 }
 
 void settings::restore_default_tab_payload_item() {
@@ -187,16 +179,8 @@ void settings::handle_setting_tab_uds(SettingsHandle handle) {
     settings_handle(handle, ui->label_odx, ui->comboBox_odx);
 
     settings_handle(handle, ui->label_dll_1, ui->comboBox_dll_1);
-    settings_handle(handle, "security1", ui->spinBox_dll_1);
-
-    settings_handle(handle, ui->label_dll_2, ui->comboBox_dll_2);
-    settings_handle(handle, "security2", ui->spinBox_dll_2);
-
-    settings_handle(handle, ui->label_dll_3, ui->comboBox_dll_3);
-    settings_handle(handle, "security3", ui->spinBox_dll_3);
 
     settings_handle(handle, ui->label_genkey, ui->comboBox_genkey);
-    settings_handle(handle, ui->label_seedSize, ui->spinBox_seedSize);
     settings_handle(handle, ui->checkBox_uds_3e);
 
     m_settings->endGroup();

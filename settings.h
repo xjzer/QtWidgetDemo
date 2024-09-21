@@ -46,10 +46,6 @@ class settings : public QDialog {
 
     void on_pushButton_genkey_clicked();
 
-    void on_pushButton_dll_2_clicked();
-
-    void on_pushButton_dll_3_clicked();
-
     void on_pushButton_autotest_file_clicked();
 
     void on_pushButton_create_test_ini_clicked();
